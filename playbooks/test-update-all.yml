@@ -51,5 +51,6 @@
     - name: Autoclean
       ansible.builtin.apt:
         autoclean: true
-      
-  - import_playbook: playbooks/test-update-all.yml
+
+- name: bla
+  import_playbook: playbooks/test-update-all.yml
