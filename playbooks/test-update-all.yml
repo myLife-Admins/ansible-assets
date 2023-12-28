@@ -53,4 +53,4 @@
         autoclean: true
 
 - name: bla
-  import_playbook: playbooks/test-update-all.yml
+  import_playbook: test-update-all.yml
