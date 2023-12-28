@@ -1,11 +1,10 @@
----
-- name: Patch Linux Servers
-
-  hosts: linux_server
+- name: test
+  
+  hosts: localhost
   become: yes
   become_method: sudo
   gather_facts: true
-
+  
   tasks:
     - name: Get current year and month
       set_fact:
@@ -27,13 +26,13 @@
    
     - name: Create log file
       file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-ansible-Generated.txt"
         state: touch
       delegate_to: localhost
     
     - name: Write update information to a file
       lineinfile:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-ansible-Generated.txt"
         line: |
           ########################################## {{ current_time }} ##########################################
           Updates:
@@ -45,16 +44,6 @@
         upgrade: dist
         update_cache: true
 
-    - name: Check reboot
-      ansible.builtin.stat:
-        path: /var/run/reboot-required
-        get_md5: false
-      register: reboot_required_file
-
-    - name: Reboot
-      ansible.builtin.reboot:
-      when: reboot_required_file.stat.exists == true
-
     - name: Autoremove
       ansible.builtin.apt:
         autoremove: true
@@ -62,3 +51,6 @@
     - name: Autoclean
       ansible.builtin.apt:
         autoclean: true
+      
+    - name: Führe ein anderes Playbook aus
+      import_playbook: playbooks/test-update-all.yml
