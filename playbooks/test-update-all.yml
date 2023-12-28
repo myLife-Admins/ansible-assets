@@ -52,5 +52,4 @@
       ansible.builtin.apt:
         autoclean: true
       
-    - name: Führe ein anderes Playbook aus
-      import_playbook: playbooks/test-update-all.yml
+  - import_playbook: playbooks/test-update-all.yml
