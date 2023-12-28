@@ -1,7 +1,7 @@
 ---
 - name: Patch Linux Servers
 
-  hosts: linux_server
+  hosts: localhost,linux_server
   become: yes
   become_method: sudo
   gather_facts: true
@@ -31,13 +31,18 @@
         state: touch
       delegate_to: localhost
     
-    - name: Write update information to a file
+    - name: Setze den Hostnamen für das Protokoll
+      set_fact:
+        hostname_for_file: "{{ 'ansible' if inventory_hostname == 'localhost' else inventory_hostname }}"
+      delegate_to: localhost
+
+    - name: Schreibe Update-Informationen in eine Datei
       lineinfile:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
         line: |
           ########################################## {{ current_time }} ##########################################
           Updates:
-           {{ "-" + update_info.stdout | default("No updates available.") }}
+          {{ "-" + update_info.stdout | default("No updates available.") }}
       delegate_to: localhost
 
     - name: Dist-upgrade
