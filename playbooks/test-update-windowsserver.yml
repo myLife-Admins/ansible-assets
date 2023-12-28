@@ -1,0 +1,8 @@
+---
+- name: Update Windows Server
+  hosts: localhost
+  
+  tasks:
+    - include_tasks: tasks/debug.yml
+      with_items: "{{ groups['linux_server'] }}"
+    

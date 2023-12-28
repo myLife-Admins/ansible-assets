@@ -1,0 +1,12 @@
+---
+- name: mount
+  vars:
+    user: ''
+    password: ''
+  mount:
+    src: "//fs5/it/Protokolle"
+    path: "/mnt/protokolle"
+    fstype: cifs
+    opts: 'username={{ user }},password={{ password }},rw'
+    state: mounted
+  delegate_to: localhost
