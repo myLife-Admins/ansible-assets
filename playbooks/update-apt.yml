@@ -1,6 +1,6 @@
 ---
 - name: Patch Linux Servers
-  hosts: linux_server
+  hosts: localhost,linux_server
   become: yes
   become_method: sudo
   gather_facts: true
