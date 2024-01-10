@@ -7,6 +7,7 @@
   
   tasks:
     - include_tasks: tasks/linux/dist-upgrade.yml
+    - include_tasks: tasks/linux/write-log.yml
 
 - name: test2
   
@@ -17,3 +18,4 @@
   
   tasks:
     - include_tasks: tasks/linux/dist-upgrade.yml
+    - include_tasks: tasks/linux/write-log.yml
