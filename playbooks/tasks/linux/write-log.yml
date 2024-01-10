@@ -16,15 +16,15 @@
   register: update_info
   changed_when: false  # Markiere nicht als geändert, selbst wenn Updates verfügbar sind
 
-- name: Create log file
-  file:
-    path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-    state: touch
-  delegate_to: localhost
-
-- name: Setze den Hostnamen für das Protokoll
+- name: Correct hostname if necessary
   set_fact:
     hostname_for_file: "{{ 'ansible' if inventory_hostname == 'localhost' else inventory_hostname }}"
+  delegate_to: localhost
+
+- name: Create log file
+  file:
+    path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
+    state: touch
   delegate_to: localhost
 
 - name: Schreibe Update-Informationen in eine Datei
