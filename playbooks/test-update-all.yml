@@ -1,56 +1,10 @@
 - name: test
   
-  hosts: localhost
+  hosts: linux_server
   become: yes
   become_method: sudo
   gather_facts: true
   
   tasks:
-    - name: Get current year and month
-      set_fact:
-        current_year: "{{ ansible_date_time.year }}"
-        current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
-        current_time: "{{ ansible_date_time.iso8601 }}"
+    - include_tasks: tasks\linux\dist-upgrade.yml
       delegate_to: localhost
-    
-    - name: Create directories for current year and month
-      file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux"
-        state: directory
-      delegate_to: localhost
-
-    - name: Get package update information
-      shell: "apt list --upgradable"
-      register: update_info
-      changed_when: false  # Markiere nicht als geändert, selbst wenn Updates verfügbar sind
-   
-    - name: Create log file
-      file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-ansible-Generated.txt"
-        state: touch
-      delegate_to: localhost
-    
-    - name: Write update information to a file
-      lineinfile:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-ansible-Generated.txt"
-        line: |
-          ########################################## {{ current_time }} ##########################################
-          Updates:
-           {{ "-" + update_info.stdout | default("No updates available.") }}
-      delegate_to: localhost
-
-    - name: Dist-upgrade
-      ansible.builtin.apt:
-        upgrade: dist
-        update_cache: true
-
-    - name: Autoremove
-      ansible.builtin.apt:
-        autoremove: true
-
-    - name: Autoclean
-      ansible.builtin.apt:
-        autoclean: true
-
-- name: bla
-  import_playbook: test-update-all.yml
