@@ -1,10 +1,19 @@
 - name: test
   
-  hosts: linux_server
+  hosts: localhost
   become: yes
-  become_method: sudo
-  gather_facts: true
+#  become_method: sudo
+#  gather_facts: true
   
   tasks:
     - include_tasks: tasks\linux\dist-upgrade.yml
-      delegate_to: localhost
+
+- name: test2
+  
+  hosts: linux_server
+  become: yes
+#  become_method: sudo
+#  gather_facts: true
+  
+  tasks:
+    - include_tasks: tasks\linux\dist-upgrade.yml
