@@ -6,7 +6,7 @@
 #  gather_facts: true
   
   tasks:
-    - include_tasks: tasks\linux\dist-upgrade.yml
+    - include_tasks: tasks/linux/dist-upgrade.yml
 
 - name: test2
   
@@ -16,4 +16,4 @@
 #  gather_facts: true
   
   tasks:
-    - include_tasks: tasks\linux\dist-upgrade.yml
+    - include_tasks: tasks/linux/dist-upgrade.yml
