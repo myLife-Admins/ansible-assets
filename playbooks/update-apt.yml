@@ -1,50 +1,48 @@
 ---
-- name: Patch Linux Servers
+- name: Patch Host
+  
+  hosts: localhost
+  become: yes
+#  become_method: sudo
+  gather_facts: true
+  
+  tasks:
+    - include_tasks: tasks/linux/dist-upgrade.yml
+    - include_tasks: tasks/linux/write-log.yml
+    - name: Dist-upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
 
+    - name: Check reboot
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+        get_md5: false
+      register: reboot_required_file
+
+    - name: Reboot msg
+      ansible.builtin.debug:
+        msg: Reboot {{ inventory_hostname }} after the playbook finished.
+      when: reboot_required_file.stat.exists == true
+
+    - name: Autoremove
+      ansible.builtin.apt:
+        autoremove: true
+
+    - name: Autoclean
+      ansible.builtin.apt:
+        autoclean: true
+
+- name: Patch Linux Server
+  
   hosts: linux_server
   become: yes
-  become_method: sudo
+#  become_method: sudo
   gather_facts: true
-
+  
   tasks:
-    - name: Get current year and month
-      set_fact:
-        current_year: "{{ ansible_date_time.year }}"
-        current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
-        current_time: "{{ ansible_date_time.iso8601 }}"
-      delegate_to: localhost
-    
-    - name: Create directories for current year and month
-      file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux"
-        state: directory
-      delegate_to: localhost
-
-    - name: Get package update information
-      shell: "apt list --upgradable"
-      register: update_info
-      changed_when: false  # Markiere nicht als geändert, selbst wenn Updates verfügbar sind
-   
-    - name: Create log file
-      file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-        state: touch
-      delegate_to: localhost
-    
-    - name: Setze den Hostnamen für das Protokoll
-      set_fact:
-        hostname_for_file: "{{ 'ansible' if inventory_hostname == 'localhost' else inventory_hostname }}"
-      delegate_to: localhost
-
-    - name: Schreibe Update-Informationen in eine Datei
-      lineinfile:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
-        line: |
-          ########################################## {{ current_time }} ##########################################
-          Updates:
-          {{ "-" + update_info.stdout | default("No updates available.") }}
-      delegate_to: localhost
-
+    - include_tasks: tasks/linux/dist-upgrade.yml
+    - include_tasks: tasks/linux/write-log.yml
     - name: Dist-upgrade
       ansible.builtin.apt:
         upgrade: dist
