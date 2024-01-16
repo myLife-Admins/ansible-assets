@@ -1,4 +1,4 @@
-- name: test
+- name: Patch Host
   
   hosts: localhost
   become: yes
@@ -8,6 +8,29 @@
   tasks:
     - include_tasks: tasks/linux/dist-upgrade.yml
     - include_tasks: tasks/linux/write-log.yml
+    - name: Dist-upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
+
+    - name: Check reboot
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+        get_md5: false
+      register: reboot_required_file
+
+    - name: Reboot
+      ansible.builtin.debug:
+      msg: Reboot {{ inventory_hostname }} after the playbook finished.
+      when: reboot_required_file.stat.exists == true
+
+    - name: Autoremove
+      ansible.builtin.apt:
+        autoremove: true
+
+    - name: Autoclean
+      ansible.builtin.apt:
+        autoclean: true
 
 - name: test2
   
@@ -19,3 +42,25 @@
   tasks:
     - include_tasks: tasks/linux/dist-upgrade.yml
     - include_tasks: tasks/linux/write-log.yml
+    - name: Dist-upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
+
+    - name: Check reboot
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+        get_md5: false
+      register: reboot_required_file
+
+    - name: Reboot
+      ansible.builtin.reboot:
+      when: reboot_required_file.stat.exists == true
+
+    - name: Autoremove
+      ansible.builtin.apt:
+        autoremove: true
+
+    - name: Autoclean
+      ansible.builtin.apt:
+        autoclean: true
