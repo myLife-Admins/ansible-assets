@@ -1,6 +1,5 @@
 - name: Update Windows Server
   hosts: "windows_test" #"{{ hosts_list }}"
-  become: true
   gather_facts: true
   vars_prompt:
 #     - name: hosts_list
