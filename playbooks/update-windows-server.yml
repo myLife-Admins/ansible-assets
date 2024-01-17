@@ -3,11 +3,11 @@
   become: true
   gather_facts: true
   vars_prompt:
-#      - name: hosts_list
-#        prompt:
-#        - "Enter hosts"
-#        - "windows_test"
-#        private: false
+#     - name: hosts_list
+#       prompt:
+#       - "Enter hosts"
+#       - "windows_test"
+#       private: false
     - name: domain_admin_username 
       prompt: "Admin (bsp. admin@gutingia.local)"
       private: false
@@ -21,38 +21,32 @@
     domain_admin_password: ''
 
   tasks:
-#    - name: Get current year and month
-#      set_fact:
-#        current_year: "{{ ansible_date_time.year }}"
-#        current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
-    
-#    - ansible.builtin.include_tasks: tasks/debug.yml
-#      vars:
-#        user: "{{ domain_admin_user }}"
-#        password: '{{ domain_admin_password }}'
+  - name: Get current year and month
+    set_fact:
+      current_year: "{{ ansible_date_time.year }}"
+      current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
+      current_time: "{{ ansible_date_time.iso8601 }}"
+    delegate_to: localhost
 
-#    - ansible.builtin.include_tasks: tasks/test-mount-protokolle.yml
-#      vars:
-#        user: "{{ domain_admin_user }}"
-#        password: '{{ domain_admin_password }}'
-
-    - name: Create directories for current year and month
-      file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
-        state: directory
-
-#    - name: Test
-#      ansible.windows.win_updates:
-#        category_names: '*'
-#        reboot: true
-#        reboot_timeout: 600
-    
-    - name: Create Hello World Text File
-      copy:
-        content: "Hello, World 2!"
-        dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
-    
-    - name: Unmount SMB Share
-      mount:
-        path: "/mnt/protokolle"
-        state: unmounted
+  - name: Create directories for current year and month
+    file:
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
+      state: directory
+  
+  - name: Install all critical and security updates
+    win_updates:
+      category_names:
+      - CriticalUpdates
+      - SecurityUpdates
+      - UpdateRollups
+      state: installed
+    register: update_result
+  
+  - name: reboot host if required
+    win_reboot:
+    when: update_result.reboot_required
+  
+  - name: Create Hello World Text File
+    copy:
+      content: "Hello, World 2!"
+      dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
