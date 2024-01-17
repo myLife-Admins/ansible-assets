@@ -1,5 +1,5 @@
 - name: Update Windows Server
-  hosts: "localhost" #"{{ hosts_list }}"
+  hosts: "windows_test" #"{{ hosts_list }}"
   become: true
   gather_facts: true
   vars_prompt:
@@ -32,6 +32,7 @@
     file:
       path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
       state: directory
+    delegate_to: localhost
   
   - name: Install all critical and security updates
     win_updates:
@@ -50,3 +51,4 @@
     copy:
       content: "Hello, World 2!"
       dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
+    delegate_to: localhost
