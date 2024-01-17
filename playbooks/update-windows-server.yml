@@ -17,8 +17,11 @@
       private: true
 
   vars:
-    domain_admin_user: ''
-    domain_admin_password: ''
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_user: "{{ domain_admin_username }}"
+    ansible_password: "{{ domain_admin_password }}"
+    ansible_winrm_transport: basic
 
   tasks:
   - name: Get current year and month
