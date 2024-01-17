@@ -19,6 +19,7 @@
     ansible_winrm_transport: basic
     ansible_user: "{{ domain_admin_username }}"
     ansible_password: "{{ domain_admin_password }}"
+    ansible_port: 5985
     ansible_winrm_server_cert_validation: ignore
 
   tasks:
