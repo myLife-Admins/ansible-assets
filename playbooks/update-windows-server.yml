@@ -19,7 +19,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_user: "{{ domain_admin_username }}"
     ansible_password: "{{ domain_admin_password }}"
-    ansible_winrm_transport: kerberos
+    ansible_winrm_transport: ntlm
 
   tasks:
   - name: Get current year and month
