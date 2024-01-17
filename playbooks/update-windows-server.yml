@@ -16,26 +16,26 @@
 
   vars:
     ansible_connection: winrm
-    ansible_winrm_transport: basic
+    ansible_winrm_transport: ntlm
     ansible_user: "{{ domain_admin_username }}"
     ansible_password: "{{ domain_admin_password }}"
     ansible_port: 5985
     ansible_winrm_server_cert_validation: ignore
 
   tasks:
-  - name: Get current year and month
-    set_fact:
-      current_year: "{{ ansible_date_time.year }}"
-      current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
-      current_time: "{{ ansible_date_time.iso8601 }}"
-    delegate_to: localhost
-
-  - name: Create directories for current year and month
-    file:
-      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
-      state: directory
-    delegate_to: localhost
-  
+#  - name: Get current year and month
+#    set_fact:
+#      current_year: "{{ ansible_date_time.year }}"
+#      current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
+#      current_time: "{{ ansible_date_time.iso8601 }}"
+#    delegate_to: localhost
+#
+#  - name: Create directories for current year and month
+#    file:
+#      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
+#      state: directory
+#    delegate_to: localhost
+#
   - name: Install all critical and security updates
     win_updates:
       category_names:
