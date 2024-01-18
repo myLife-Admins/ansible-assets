@@ -49,8 +49,8 @@
     win_reboot:
     when: update_result.reboot_required
   
-  - name: Create Hello World Text File
-    copy:
-      content: "Hello, World 2!"
-      dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
-    delegate_to: localhost
+#  - name: Create Hello World Text File
+#    copy:
+#      content: "Hello, World 2!"
+#      dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
+#    delegate_to: localhost
