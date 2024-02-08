@@ -35,7 +35,6 @@
       delegate_to: localhost
       throttle: 2
 
----
 - name: Update Windows Server
   hosts: "windows_test"
   become: false
@@ -82,7 +81,7 @@
   - name: Zeige verfügbare Updates
     ansible.builtin.debug:
       msg: "{{ update_result }} Updates gefunden: {{ update_result }}"
-      
+
 #  - name: Install all critical and security updates
 #    win_updates:
 #      category_names:
