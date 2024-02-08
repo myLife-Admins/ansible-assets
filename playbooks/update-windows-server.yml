@@ -2,7 +2,7 @@
 ---
 - name: Patch Host
   
-  hosts: localhost
+  hosts: linux_server
   become: yes
   gather_facts: true
   
@@ -36,20 +36,6 @@
       delegate_to: localhost
       throttle: 2
 
-- name: Update Windows Server
-  hosts: "windows_test"
-  become: false
-  gather_facts: true
-  
-  vars:
-    ansible_connection: winrm
-    ansible_winrm_transport: ntlm
-    ansible_user: "{{ domain_admin_username }}"
-    ansible_password: "{{ domain_admin_password }}"
-    ansible_port: 5985
-    ansible_winrm_server_cert_validation: ignore
-
-  tasks:
 #  - name: Get current year and month
 #    set_fact:
 #      current_year: "{{ ansible_date_time.year }}"
@@ -63,14 +49,14 @@
 #      state: directory
 #    delegate_to: localhost
 #
-  - name: Suche nach verfügbaren Updates
-    ansible.windows.win_updates:
-      state: searched
-    register: update_result
+    - name: Suche nach verfügbaren Updates
+      ansible.windows.win_updates:
+        state: searched
+      register: update_result
 
-  - name: Zeige verfügbare Updates
-    ansible.builtin.debug:
-      msg: "{{ update_result }} Updates gefunden: {{ update_result }}"
+    - name: Zeige verfügbare Updates
+      ansible.builtin.debug:
+        msg: "{{ update_result }} Updates gefunden: {{ update_result }}"
 
 #  - name: Install all critical and security updates
 #    win_updates:
