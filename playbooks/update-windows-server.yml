@@ -28,7 +28,7 @@
         validate_certs: no
         datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
         folder: "/{{ datacenter_name }}/vm/"
-        name: "{{ inventory_hostname }}"
+        name: "v-ts-patch-01"
         state: present
         snapshot_name: "Update-{{ ansible_date_time.date }}"
         description: "Automatisch erstellter Snapshot vor Update"
