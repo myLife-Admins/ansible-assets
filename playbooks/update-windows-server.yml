@@ -24,7 +24,7 @@
       community.vmware.vmware_guest_snapshot:
         hostname: "{{ vcenter_hostname }}"
         username: "{{ user }}"
-        password: "{{ Passwort }}"
+        password: "{{ password }}"
         validate_certs: no
         datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
         folder: "/{{ datacenter_name }}/vm/"
