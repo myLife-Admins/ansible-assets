@@ -1,41 +1,41 @@
 
 ---
-- name: Erstelle Snapshots
-  hosts: localhost
-  become: false
-  gather_facts: true
+# - name: Erstelle Snapshots
+#   hosts: localhost
+#   become: false
+#   gather_facts: true
   
-  vars_prompt:
-  - name: ansible_user 
-    prompt: "Admin (bsp. admin@gutingia.local)"
-    private: false
-  - name: ansible_password
-    prompt: "Passwort"
-    private: true
+#   vars_prompt:
+#   - name: ansible_user 
+#     prompt: "Admin (bsp. admin@gutingia.local)"
+#     private: false
+#   - name: ansible_password
+#     prompt: "Passwort"
+#     private: true
 
-  vars:
-    vcenter_hostname: vcenter1.gutingia.local
-    datacenter_name: myLife
+#   vars:
+#     vcenter_hostname: vcenter1.gutingia.local
+#     datacenter_name: myLife
 
-  tasks:
-  - name: Erstelle Snapshots für jede VM
-    community.vmware.vmware_guest_snapshot:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
-      validate_certs: no
-      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
-      folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ item }}"
-      state: present
-      memory_dump: yes
-      snapshot_name: "Update-{{ ansible_date_time.date }}"
-      description: "Automatisch erstellter Snapshot vor Update"
-    delegate_to: localhost
-    throttle: 2
-    loop: "{{ groups['windows_test'] }}"
+#   tasks:
+#   - name: Erstelle Snapshots für jede VM
+#     community.vmware.vmware_guest_snapshot:
+#       hostname: "{{ vcenter_hostname }}"
+#       username: "{{ ansible_user }}"
+#       password: "{{ ansible_password }}"
+#       validate_certs: no
+#       datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
+#       folder: "/{{ datacenter_name }}/vm/"
+#       name: "{{ item }}"
+#       state: present
+#       memory_dump: yes
+#       snapshot_name: "Update-{{ ansible_date_time.date }}"
+#       description: "Automatisch erstellter Snapshot vor Update"
+#     delegate_to: localhost
+#     throttle: 2
+#     loop: "{{ groups['windows_test'] }}"
 
-- name: Patch Host
+- name: Patch Windows Host
   hosts: windows_test
   become: false
   gather_facts: true
@@ -74,7 +74,6 @@
       ansible.windows.win_updates:
         state: searched
       register: update_result
-
 
     - name: Zeige verfügbare Updates
       ansible.builtin.debug:
