@@ -71,7 +71,7 @@
       ansible.builtin.debug:
         msg: |
           {{ inventory_hostname }}(Windows Server {{ ansible_distribution_version }}):
-          ToDo: Updates({{ updates_info.updates | length }})
+          ToDo: Updates({{ update_result.updates | length }})
 
 #  - name: Install all critical and security updates
 #    win_updates:
