@@ -52,6 +52,7 @@
       username: "{{ ansible_user }}"
       password: "{{ ansible_password }}"
       validate_certs: no
+      folder: "/{{ datacenter_name }}/vm/"
       datacenter: myLife  # Ersetze durch deinen Datacenter-Namen
       name: "{{ inventory_hostname }}"
       state: present
