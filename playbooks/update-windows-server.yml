@@ -41,10 +41,10 @@
   gather_facts: true
 
   vars_prompt:
-  - name: domain_admin_username 
+  - name: ansible_user 
     prompt: "Admin (bsp. adminjs)"
     private: false
-  - name: domain_admin_password
+  - name: ansible_password
     prompt: "Passwort"
     private: true
   
