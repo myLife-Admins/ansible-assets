@@ -30,7 +30,7 @@
         folder: "/{{ datacenter_name }}/vm/"
         name: "v-ts-patch-01"
         state: present
-        snapshot_memory: yes
+        memory_dump: yes
         snapshot_name: "Update-{{ ansible_date_time.date }}"
         description: "Automatisch erstellter Snapshot vor Update"
       delegate_to: localhost
