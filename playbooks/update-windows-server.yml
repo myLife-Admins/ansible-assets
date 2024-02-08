@@ -22,6 +22,7 @@
     ansible_port: 5985
     ansible_winrm_server_cert_validation: ignore
     vcenter_hostname: vcenter1.gutingia.local
+    datacenter_name: myLife
 
   tasks:
 #  - name: Get current year and month
@@ -52,8 +53,8 @@
       username: "{{ ansible_user }}"
       password: "{{ ansible_password }}"
       validate_certs: no
+      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
       folder: "/{{ datacenter_name }}/vm/"
-      datacenter: myLife  # Ersetze durch deinen Datacenter-Namen
       name: "{{ inventory_hostname }}"
       state: present
       snapshot_name: "Update-{{ ansible_date_time.date }}"
