@@ -2,7 +2,7 @@
 ---
 - name: Patch Host
   hosts: windows_test
-  become: yes
+  become: false
   gather_facts: true
   
   vars_prompt:
