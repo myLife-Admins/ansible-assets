@@ -1,7 +1,7 @@
 
 ---
-- name: Patch Host
-  hosts: windows_test
+- name: Erstelle Snapshots
+  hosts: localhost
   become: false
   gather_facts: true
   
@@ -12,28 +12,45 @@
   - name: ansible_password
     prompt: "Passwort"
     private: true
-  
-  vars:
-    vcenter_hostname: vcenter1.gutingia.local
-    datacenter_name: myLife
 
   tasks:
-    - name: Erstelle Snapshots für jede VM
-      community.vmware.vmware_guest_snapshot:
-        hostname: "{{ vcenter_hostname }}"
-        username: "{{ ansible_user }}"
-        password: "{{ ansible_password }}"
-        validate_certs: no
-        datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
-        folder: "/{{ datacenter_name }}/vm/"
-        name: "v-ts-patch-01"
-        state: present
-        memory_dump: yes
-        snapshot_name: "Update-{{ ansible_date_time.date }}"
-        description: "Automatisch erstellter Snapshot vor Update"
-      delegate_to: localhost
-      throttle: 2
+  - name: Erstelle Snapshots für jede VM
+    community.vmware.vmware_guest_snapshot:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      validate_certs: no
+      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
+      folder: "/{{ datacenter_name }}/vm/"
+      name: "{{ item }}"
+      state: present
+      memory_dump: yes
+      snapshot_name: "Update-{{ ansible_date_time.date }}"
+      description: "Automatisch erstellter Snapshot vor Update"
+    delegate_to: localhost
+    throttle: 2
+    loop: "{{ groups['windows_test'] }}"
 
+- name: Patch Host
+  hosts: windows_test
+  become: false
+  gather_facts: true
+
+  vars_prompt:
+  - name: ansible_user 
+    prompt: "Admin (bsp. adminjs)"
+    private: false
+  - name: ansible_password
+    prompt: "Passwort"
+    private: true
+  
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_transport: ntlm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+  tasks:
 #  - name: Get current year and month
 #    set_fact:
 #      current_year: "{{ ansible_date_time.year }}"
@@ -51,11 +68,7 @@
       ansible.windows.win_updates:
         state: searched
       register: update_result
-      vars:
-          ansible_connection: winrm
-          ansible_winrm_transport: ntlm
-          ansible_winrm_server_cert_validation: ignore
-          ansible_port: 5985
+
 
     - name: Zeige verfügbare Updates
       ansible.builtin.debug:
