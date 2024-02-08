@@ -69,7 +69,7 @@
 
     - name: Zeige verfügbare Updates
       ansible.builtin.debug:
-        msg: "{{ update_result }} Updates gefunden: {{ update_result }}"
+        msg: "{{ update_result.found_update_count }} Updates gefunden: {{ update_result.updates }}"
 
 #  - name: Install all critical and security updates
 #    win_updates:
