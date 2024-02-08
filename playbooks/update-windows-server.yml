@@ -37,6 +37,15 @@
 #      state: directory
 #    delegate_to: localhost
 #
+  - name: Suche nach verfügbaren Updates
+    ansible.windows.win_updates:
+      state: searched
+    register: update_result
+
+  - name: Zeige verfügbare Updates
+    ansible.builtin.debug:
+      msg: "{{ update_result.found_update_count }} Updates gefunden: {{ update_result.found_updates }}"
+
   - name: Erstelle Snapshots für jede VM
     community.vmware.vmware_guest_snapshot:
       hostname: "{{ vcenter_hostname }}"
