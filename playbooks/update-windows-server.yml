@@ -69,8 +69,9 @@
 
     - name: Zeige verfügbare Updates
       ansible.builtin.debug:
-        msg: "Updates gefunden: {{ item.title }}"
-      loop: "{{ update_result.updates }}"
+        msg: |
+          {{ inventory_hostname }}(Windows Server {{ ansible_distribution_version }}):
+          ToDo: Updates({{ updates_info.updates | length }})
 
 #  - name: Install all critical and security updates
 #    win_updates:
