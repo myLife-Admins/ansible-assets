@@ -44,7 +44,7 @@
 
   - name: Zeige verfügbare Updates
     ansible.builtin.debug:
-      msg: "{{ update_result.found_update_count }} Updates gefunden: {{ update_result.found_updates }}"
+      msg: "{{ update_result }} Updates gefunden: {{ update_result }}"
 
   - name: Erstelle Snapshots für jede VM
     community.vmware.vmware_guest_snapshot:
