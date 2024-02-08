@@ -1,8 +1,7 @@
 
 ---
 - name: Patch Host
-  
-  hosts: linux_server
+  hosts: windows_test
   become: yes
   gather_facts: true
   
