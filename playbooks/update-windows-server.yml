@@ -89,9 +89,14 @@
         line: |
           {{ update_result }}
           ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
-          {% for update in update_result.updates | default([]) %}
-          - {{ update }}
-          {% endfor %}
+      delegate_to: localhost
+
+    - name: Zeige verfügbare Updates
+      lineinfile:
+        create: yes
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+        line: "- {{ item }}"
+        loop: "{{ update_result.updates }}"
       delegate_to: localhost
 
 #  - name: Install all critical and security updates
