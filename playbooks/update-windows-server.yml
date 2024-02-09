@@ -72,10 +72,6 @@
         state: searched
       register: update_result
 
-    - name: Zeige verfügbare Updates
-      ansible.builtin.debug:
-        msg: "{{ update_result.updates }}"
-
     # - name: Create log file
     #   file:
     #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
@@ -95,10 +91,10 @@
       ansible.builtin.copy:
         dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
         content: |
-          - Test
+          - {{ update_result.updates }}
         force: yes
       delegate_to: localhost
-      loop: "{{ update_result }}"
+      # loop: "{{ update_result }}"
 
 #  - name: Install all critical and security updates
 #    win_updates:
