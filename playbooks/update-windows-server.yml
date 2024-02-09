@@ -48,55 +48,50 @@
     prompt: "Passwort"
     private: true
   
-  vars:
-    current_year: "2024"
-    current_month: "02"
-
-
   tasks:
-#  - name: Get current year and month
-#    set_fact:
-#      current_year: "{{ ansible_date_time.year }}"
-#      current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
-#      current_time: "{{ ansible_date_time.iso8601 }}"
-#    delegate_to: localhost
-#
-#  - name: Create directories for current year and month
-#    file:
-#      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
-#      state: directory
-#    delegate_to: localhost
-#
-    - name: Suche nach verfügbaren Updates
-      ansible.windows.win_updates:
-        state: searched
-      register: update_result
+  - name: Get current year and month
+    set_fact:
+      current_year: "{{ ansible_date_time.year }}"
+      current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
+      current_time: "{{ ansible_date_time.iso8601 }}"
+    delegate_to: localhost
 
-    # - name: Create log file
-    #   file:
-    #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-    #     state: touch
-    #   delegate_to: localhost
+  - name: Create directories for current year and month
+    file:
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
+      state: directory
+    delegate_to: localhost
+
+  - name: Erhalte die Windows-Version
+    ansible.windows.win_shell: |
+      Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
+    register: windows_version_info
+
+  - name: Suche nach verfügbaren Updates
+    ansible.windows.win_updates:
+      state: searched
+    register: update_result
+
+  - name: Zeige verfügbare Updates
+    lineinfile:
+      create: yes
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+      line: |
+        {{ inventory_hostname }}({{ windows_version_info }}):
+        {% for update in update_result.updates %}
+          - {{ update_result.updates[update].title }}
+          {% endfor %}
+    delegate_to: localhost
 
     # - name: Zeige verfügbare Updates
-    #   lineinfile:
-    #     create: yes
-    #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-    #     line: |
-    #       {{ update_result }}
-    #       ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
+    #   ansible.builtin.copy:
+    #     dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+    #     content: |
+    #       {% for update in update_result.updates %}
+    #       - {{ update_result.updates[update].title }}
+    #       {% endfor %}
+    #     force: yes
     #   delegate_to: localhost
-
-    - name: Zeige verfügbare Updates
-      ansible.builtin.copy:
-        dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-        content: |
-          {% for u in update_result.updates %}
-          - {{ update_result.updates[u].title }}
-          {% endfor %}
-        force: yes
-      delegate_to: localhost
-      # loop: "{{ update_result }}"
 
 #  - name: Install all critical and security updates
 #    win_updates:
@@ -110,9 +105,3 @@
 #  - name: reboot host if required
 #    win_reboot:
 #    when: update_result.reboot_required
-#  
-#  - name: Create Hello World Text File
-#    copy:
-#      content: "Hello, World 2!"
-#      dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
-#    delegate_to: localhost
