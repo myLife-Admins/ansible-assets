@@ -91,8 +91,8 @@
       ansible.builtin.copy:
         dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
         content: |
-          {% for update in update_result.updates %}
-          - {{ update }}
+          {% for u in update_result.updates %}
+          - {{ update_result.updates[u].title }}
           {% endfor %}
         force: yes
       delegate_to: localhost
