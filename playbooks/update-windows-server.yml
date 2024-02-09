@@ -98,7 +98,7 @@
           - Test
         force: yes
       delegate_to: localhost
-      loop: "{{ update_result.updates }}"
+      loop: "{{ update_result }}"
 
 #  - name: Install all critical and security updates
 #    win_updates:
