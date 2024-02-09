@@ -87,7 +87,13 @@
   - name:
     set_fact:
       reboot_start: "{{ ansible_date_time.iso8601 }}"
+    when: update_result.reboot_required 
 
+  - name: Show Debug msg
+    ansible.builtin.debug:
+      msg: "{{ reboot_start }}"
+    when: update_result.reboot_required
+  
   - name: reboot host if required
     win_reboot:
     when: update_result.reboot_required
@@ -95,7 +101,13 @@
   - name:
     set_fact:
       reboot_end: "{{ ansible_date_time.iso8601 }}"
-
+    when: update_result.reboot_required
+  
+  - name: Show Debug msg
+    ansible.builtin.debug:
+      msg: "{{ update_result_after }}"
+    when: update_result.reboot_required
+  
   - name: Suche nach verfügbaren Updates
     ansible.windows.win_updates:
       state: searched
