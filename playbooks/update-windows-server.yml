@@ -76,20 +76,20 @@
       ansible.builtin.debug:
         msg: "{{ update_result }}"
 
-    - name: Create log file
-      file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-        state: touch
-      delegate_to: localhost
+    # - name: Create log file
+    #   file:
+    #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+    #     state: touch
+    #   delegate_to: localhost
 
     - name: Zeige verfügbare Updates
       lineinfile:
+        create: yes
         path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
         line: |
-          {{ inventory_hostname }}(Windows Server {{ ansible_distribution_version }}):
-          ToDo: Updates({{ update_result.updates | length }}) Installation gestarted = OK.
-          {% for update in update_result.updates %}
-          - {{ update.id }} {{ update.size }} {{ update.title }}
+          ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
+          {% for update in update_result.updates | default([]) %}
+          - {{ update.kb }} {{ update.title }}
           {% endfor %}
       delegate_to: localhost
 
