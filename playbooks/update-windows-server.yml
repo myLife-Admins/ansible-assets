@@ -81,7 +81,7 @@
       create: yes
       path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
       line: |
-        {{ inventory_hostname }}({{ windows_version_info }}):
+        {{ inventory_hostname }}({{ windows_version_info.stdout }}):
         {% for update in update_result.updates %}
           - {{ update_result.updates[update].title }}
           {% endfor %}
