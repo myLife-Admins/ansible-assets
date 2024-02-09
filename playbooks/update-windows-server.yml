@@ -48,6 +48,11 @@
     prompt: "Passwort"
     private: true
   
+  vars:
+    current_year: "2024"
+    current_month: "02"
+
+
   tasks:
 #  - name: Get current year and month
 #    set_fact:
@@ -69,7 +74,18 @@
 
     - name: Zeige verfügbare Updates
       ansible.builtin.debug:
-        msg: |
+        msg: "{{ update_result }}"
+
+    - name: Create log file
+      file:
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
+        state: touch
+      delegate_to: localhost
+
+    - name: Zeige verfügbare Updates
+      lineinfile:
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+        line: |
           {{ inventory_hostname }}(Windows Server {{ ansible_distribution_version }}):
           ToDo: Updates({{ update_result.updates | length }}) Installation gestarted = OK.
           {% for update in update_result.updates %}
