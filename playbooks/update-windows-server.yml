@@ -89,7 +89,7 @@
         line: |
           ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
           {% for update in update_result.updates | default([]) %}
-          - {{ update_result.updates.kb }} {{ update_result.updates.title }}
+          - {{ update }}
           {% endfor %}
       delegate_to: localhost
 
