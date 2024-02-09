@@ -62,18 +62,18 @@
       state: directory
     delegate_to: localhost
 
-  - name: Erhalte die Windows-Version
-    ansible.windows.win_shell: |
-      (Get-ComputerInfo).OsName
-    register: windows_version_info
+  # - name: Erhalte die Windows-Version
+  #   ansible.windows.win_shell: |
+  #     (Get-ComputerInfo).OsName
+  #   register: windows_version_info
 
-  - name: Bereinige die Ausgabe
-    ansible.builtin.set_fact:
-      clean_windows_version_info: "{{ windows_version_info.stdout | regex_replace('\r\n', '') }}"
+  # - name: Bereinige die Ausgabe
+  #   ansible.builtin.set_fact:
+  #     clean_windows_version_info: "{{ windows_version_info.stdout | regex_replace('\r\n', '') }}"
 
   - name: Debug update_result.updates
     ansible.builtin.debug:
-      msg: "{{ clean_windows_version_info }}"
+      msg: "{{ ansible_facts }}"
 
   - name: Suche nach verfügbaren Updates
     ansible.windows.win_updates:
