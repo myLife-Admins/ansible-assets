@@ -92,12 +92,15 @@
       delegate_to: localhost
 
     - name: Zeige verfügbare Updates
-      lineinfile:
-        create: yes
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-        line: "{{ item }}"
-        loop: "{{ update_result.updates }}"
+      ansible.builtin.copy:
+        dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+        content: |
+          {% for update in update_result.updates %}
+          - {{ update }}
+          {% endfor %}
+        force: yes
       delegate_to: localhost
+      loop: "{{ update_result.updates }}"
 
 #  - name: Install all critical and security updates
 #    win_updates:
