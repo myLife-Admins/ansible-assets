@@ -64,8 +64,12 @@
 
   - name: Erhalte die Windows-Version
     ansible.windows.win_shell: |
-      Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
+      Get-ComputerInfo | Select-Object OsName
     register: windows_version_info
+
+  - name: Debug update_result.updates
+    ansible.builtin.debug:
+      msg: "{{ windows_version_info.stdout }}"
 
   - name: Suche nach verfügbaren Updates
     ansible.windows.win_updates:
@@ -82,16 +86,6 @@
           - {{ update_result.updates[update].title }}
           {% endfor %}
     delegate_to: localhost
-
-    # - name: Zeige verfügbare Updates
-    #   ansible.builtin.copy:
-    #     dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-    #     content: |
-    #       {% for update in update_result.updates %}
-    #       - {{ update_result.updates[update].title }}
-    #       {% endfor %}
-    #     force: yes
-    #   delegate_to: localhost
 
 #  - name: Install all critical and security updates
 #    win_updates:
