@@ -95,7 +95,7 @@
       lineinfile:
         create: yes
         path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-        line: "- {{ item }}"
+        line: "{{ item }}"
         loop: "{{ update_result.updates }}"
       delegate_to: localhost
 
