@@ -78,7 +78,7 @@
 
     - name: Create log file
       file:
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
+        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
         state: touch
       delegate_to: localhost
 
