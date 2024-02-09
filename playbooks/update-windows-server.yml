@@ -64,7 +64,7 @@
 
   - name: Erhalte die Windows-Version
     ansible.windows.win_shell: |
-      Get-ComputerInfo | Select-Object OsName
+      (Get-ComputerInfo).OsName
     register: windows_version_info
 
   - name: Debug update_result.updates
