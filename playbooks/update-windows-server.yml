@@ -82,22 +82,20 @@
     #     state: touch
     #   delegate_to: localhost
 
-    - name: Zeige verfügbare Updates
-      lineinfile:
-        create: yes
-        path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-        line: |
-          {{ update_result }}
-          ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
-      delegate_to: localhost
+    # - name: Zeige verfügbare Updates
+    #   lineinfile:
+    #     create: yes
+    #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+    #     line: |
+    #       {{ update_result }}
+    #       ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
+    #   delegate_to: localhost
 
     - name: Zeige verfügbare Updates
       ansible.builtin.copy:
         dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
         content: |
-          {% for update in update_result.updates %}
-          - {{ update }}
-          {% endfor %}
+          - Test
         force: yes
       delegate_to: localhost
       loop: "{{ update_result.updates }}"
