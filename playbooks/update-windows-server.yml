@@ -80,11 +80,18 @@
     delegate_to: localhost
 
   - name: Install all critical and security updates
-    win_updates:
+    ansible.windows.win_updates:
       category_names:
       - CriticalUpdates
       - SecurityUpdates
       - UpdateRollups
+      - Updates
+      - FeaturePacks
+      - ServicePacks
+      - DefinitionUpdates
+      - Tools
+      - Guidance
+      - UpdateRollup
       state: installed
     register: update_result
   
