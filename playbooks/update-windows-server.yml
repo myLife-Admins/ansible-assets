@@ -74,7 +74,7 @@
 
     - name: Zeige verfügbare Updates
       ansible.builtin.debug:
-        msg: "{{ update_result }}"
+        msg: "{{ update_result.updates }}"
 
     # - name: Create log file
     #   file:
@@ -87,9 +87,10 @@
         create: yes
         path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
         line: |
+          {{ update_result }}
           ToDo: Updates({{ update_result.updates | default([]) | length }}) Installation gestartet = OK.
           {% for update in update_result.updates | default([]) %}
-          - {{ update_result[update] }}
+          - {{ update }}
           {% endfor %}
       delegate_to: localhost
 
