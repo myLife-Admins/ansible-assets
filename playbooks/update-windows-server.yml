@@ -71,8 +71,10 @@
       ansible.builtin.debug:
         msg: |
           {{ inventory_hostname }}(Windows Server {{ ansible_distribution_version }}):
-          Test
-          ToDo: Updates({{ update_result.updates | length }})
+          ToDo: Updates({{ update_result.updates | length }}) Installation gestarted = OK.
+          {% for update in update_result.updates %}
+          - {{ update.id }} {{ update.size }} {{ update.title }}
+          {% endfor %}
       delegate_to: localhost
 
 #  - name: Install all critical and security updates
