@@ -67,17 +67,6 @@
       state: searched
     register: update_result
 
-  - name: Zeige verfügbare Updates
-    lineinfile:
-      create: yes
-      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-      line: |
-        {{ inventory_hostname }}({{ ansible_facts.os_name }}):
-        Updates({{ update_result.found_update_count }})
-        {% for update in update_result.updates %}
-        - {{ update_result.updates[update].title }}
-        {% endfor %}
-    delegate_to: localhost
 
   - name: Install all critical and security updates
     ansible.windows.win_updates:
@@ -95,9 +84,17 @@
       state: installed
     register: update_result
   
+  - name:
+    set_fact:
+      reboot_start: "{{ ansible_date_time.iso8601 }}"
+
   - name: reboot host if required
     win_reboot:
     when: update_result.reboot_required
+
+  - name:
+    set_fact:
+      reboot_end: "{{ ansible_date_time.iso8601 }}"
 
   - name: Suche nach verfügbaren Updates
     ansible.windows.win_updates:
@@ -107,3 +104,16 @@
   - name: Show Debug msg
     ansible.builtin.debug:
       msg: "{{ update_result_after }}"
+
+  - name: Write Logfile
+    lineinfile:
+      create: yes
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+      line: |
+        {{ inventory_hostname }}({{ ansible_facts.os_name }}):
+        Updates({{ update_result.found_update_count }})
+        {% for update in update_result.updates %}
+        - {{ update_result.updates[update].title }}
+        {% endfor %}
+        Neustart von {{ reboot_start }} bis {{ reboot_end }} = OK
+    delegate_to: localhost
