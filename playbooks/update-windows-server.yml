@@ -55,18 +55,20 @@
       current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
       current_time: "{{ ansible_date_time.iso8601 }}"
     delegate_to: localhost
+    ignore_errors: yes
 
   - name: Create directories for current year and month
     file:
       path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
       state: directory
     delegate_to: localhost
+    ignore_errors: yes
 
   - name: Suche nach verfügbaren Updates
     ansible.windows.win_updates:
       state: searched
     register: update_result
-
+    ignore_errors: yes
 
   - name: Install all critical and security updates
     ansible.windows.win_updates:
@@ -83,39 +85,62 @@
       - UpdateRollup
       state: installed
     register: update_result
+    ignore_errors: yes
   
   - name:
     set_fact:
       reboot_start: "{{ ansible_date_time.iso8601 }}"
     when: update_result.reboot_required 
+    ignore_errors: yes
 
-  - name: Show Debug msg
-    ansible.builtin.debug:
-      msg: "{{ reboot_start }}"
-    when: update_result.reboot_required
-  
+  - name: Speichere die anfängliche Windows-Version
+    set_fact:
+      initial_version: "{{ ansible_distribution_version }}"
+    ignore_errors: yes
+
   - name: reboot host if required
     win_reboot:
     when: update_result.reboot_required
+    ignore_errors: yes
+  
+  - name: Sammle Fakten erneut nach dem Neustart
+    setup:
+    ignore_errors: yes
+
+  - name: Vergleiche Windows-Versionen
+    set_fact:
+      test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ ansible_distribution_version }} =  OK"
+    when: initial_version != ansible_distribution_version
+    ignore_errors: yes
+  
+  - name: Vergleiche Windows-Versionen
+    set_fact:
+      test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ ansible_distribution_version }} =  OK"
+    when: initial_version == ansible_distribution_version
+    ignore_errors: yes
 
   - name:
     set_fact:
       reboot_end: "{{ ansible_date_time.iso8601 }}"
     when: update_result.reboot_required
+    ignore_errors: yes
   
   - name: Show Debug msg
     ansible.builtin.debug:
       msg: "{{ update_result_after }}"
     when: update_result.reboot_required
+    ignore_errors: yes
   
   - name: Suche nach verfügbaren Updates
     ansible.windows.win_updates:
       state: searched
     register: update_result_after
+    ignore_errors: yes
 
   - name: Show Debug msg
     ansible.builtin.debug:
       msg: "{{ update_result_after }}"
+    ignore_errors: yes
 
   - name: Write Logfile
     lineinfile:
@@ -127,5 +152,13 @@
         {% for update in update_result.updates %}
         - {{ update_result.updates[update].title }}
         {% endfor %}
-        Neustart von {{ reboot_start }} bis {{ reboot_end }} = OK
+        ToDo: Neustart von {{ reboot_start }} bis {{ reboot_end }} =
+        ToDo: Rescan intern (0) =
+        ToDo: Festplattenspeicher 21GB =
+        {{ test_string }}
+        ToDo: WSUS Status prüfen =
+        ToDo: Logs > Anwendung = 
+        ToDo: Logs > System = 
+        ToDo: Abmelden = 
     delegate_to: localhost
+    ignore_errors: yes
