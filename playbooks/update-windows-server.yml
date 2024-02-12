@@ -1,39 +1,39 @@
 
 ---
-# - name: Erstelle Snapshots
-#   hosts: localhost
-#   become: false
-#   gather_facts: true
+- name: Erstelle Snapshots
+  hosts: localhost
+  become: false
+  gather_facts: true
   
-#   vars_prompt:
-#   - name: ansible_user 
-#     prompt: "Admin (bsp. admin@gutingia.local)"
-#     private: false
-#   - name: ansible_password
-#     prompt: "Passwort"
-#     private: true
+  vars_prompt:
+  - name: ansible_user 
+    prompt: "Admin (bsp. admin@gutingia.local)"
+    private: false
+  - name: ansible_password
+    prompt: "Passwort"
+    private: true
 
-#   vars:
-#     vcenter_hostname: vcenter1.gutingia.local
-#     datacenter_name: myLife
+  vars:
+    vcenter_hostname: vcenter1.gutingia.local
+    datacenter_name: myLife
 
-#   tasks:
-#   - name: Erstelle Snapshots für jede VM
-#     community.vmware.vmware_guest_snapshot:
-#       hostname: "{{ vcenter_hostname }}"
-#       username: "{{ ansible_user }}"
-#       password: "{{ ansible_password }}"
-#       validate_certs: no
-#       datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
-#       folder: "/{{ datacenter_name }}/vm/"
-#       name: "{{ item }}"
-#       state: present
-#       memory_dump: yes
-#       snapshot_name: "Update-{{ ansible_date_time.date }}"
-#       description: "Automatisch erstellter Snapshot vor Update"
-#     delegate_to: localhost
-#     throttle: 2
-#     loop: "{{ groups['windows_test'] }}"
+  tasks:
+  - name: Erstelle Snapshots für jede VM
+    community.vmware.vmware_guest_snapshot:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      validate_certs: no
+      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
+      folder: "/{{ datacenter_name }}/vm/"
+      name: "{{ item }}"
+      state: present
+      memory_dump: yes
+      snapshot_name: "Update-{{ ansible_date_time.date }}"
+      description: "Automatisch erstellter Snapshot vor Update"
+    delegate_to: localhost
+    throttle: 2
+    loop: "{{ groups['windows_test'] }}"
 
 - name: Patch Windows Host
   hosts: windows_test
@@ -57,110 +57,107 @@
     delegate_to: localhost
     ignore_errors: yes
 
-  - name: Abfrage des LCUVer-Werts aus der Registry
+  - name: Create directories for current year and month
+    file:
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
+      state: directory
+    delegate_to: localhost
+    ignore_errors: yes
+
+  - name: Suche nach verfügbaren Updates
+    ansible.windows.win_updates:
+      state: searched
+    register: update_result
+    ignore_errors: yes
+
+  - name: Install all critical and security updates
+    ansible.windows.win_updates:
+      category_names:
+      - CriticalUpdates
+      - SecurityUpdates
+      - UpdateRollups
+      - Updates
+      - FeaturePacks
+      - ServicePacks
+      - DefinitionUpdates
+      - Tools
+      - Guidance
+      - UpdateRollup
+      state: installed
+    register: update_result
+    ignore_errors: yes
+  
+  - name:
+    set_fact:
+      reboot_start: "{{ ansible_date_time.iso8601 }}"
+    when: update_result.reboot_required 
+    ignore_errors: yes
+
+  - name: Abfrage Windows version bevor patch
     ansible.windows.win_shell: |
       (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
-    register: registry_output
+    register: initial_version
+    ignore_errors: yes
 
-  - name: Zeige den LCUVer-Wert
-    ansible.builtin.debug:
-      msg: "LCU Version: {{ registry_output.stdout_lines }}"
-
-  # - name: Create directories for current year and month
-  #   file:
-  #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
-  #     state: directory
-  #   delegate_to: localhost
-  #   ignore_errors: yes
-
-  # - name: Suche nach verfügbaren Updates
-  #   ansible.windows.win_updates:
-  #     state: searched
-  #   register: update_result
-  #   ignore_errors: yes
-
-  # - name: Install all critical and security updates
-  #   ansible.windows.win_updates:
-  #     category_names:
-  #     - CriticalUpdates
-  #     - SecurityUpdates
-  #     - UpdateRollups
-  #     - Updates
-  #     - FeaturePacks
-  #     - ServicePacks
-  #     - DefinitionUpdates
-  #     - Tools
-  #     - Guidance
-  #     - UpdateRollup
-  #     state: installed
-  #   register: update_result
-  #   ignore_errors: yes
+  - name: reboot host if required
+    win_reboot:
+    when: update_result.reboot_required
+    ignore_errors: yes
   
-  # - name:
-  #   set_fact:
-  #     reboot_start: "{{ ansible_date_time.iso8601 }}"
-  #   when: update_result.reboot_required 
-  #   ignore_errors: yes
-
-  # - name: Speichere die anfängliche Windows-Version
-  #   set_fact:
-  #     initial_version: "{{ ansible_distribution_version }}"
-  #   ignore_errors: yes
-
-  # - name: reboot host if required
-  #   win_reboot:
-  #   when: update_result.reboot_required
-  #   ignore_errors: yes
-  
+  - name: Abfrage Windows version nach patch
+    ansible.windows.win_shell: |
+      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
+    register: patched_version
+    ignore_errors: yes
   # - name: Sammle Fakten erneut nach dem Neustart
   #   setup:
   #   ignore_errors: yes
 
-  # - name: Vergleiche Windows-Versionen
-  #   set_fact:
-  #     test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ ansible_distribution_version }} =  OK"
-  #   when: initial_version != ansible_distribution_version
-  #   ignore_errors: yes
+  - name: Vergleiche Windows-Versionen
+    set_fact:
+      test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ patched_version }} =  OK"
+    when: initial_version != patched_version
+    ignore_errors: yes
   
-  # - name: Vergleiche Windows-Versionen
-  #   set_fact:
-  #     test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ ansible_distribution_version }} =  OK"
-  #   when: initial_version == ansible_distribution_version
-  #   ignore_errors: yes
+  - name: Vergleiche Windows-Versionen
+    set_fact:
+      test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ patched_version }} =  FAILED!"
+    when: initial_version == patched_version
+    ignore_errors: yes
 
-  # - name:
-  #   set_fact:
-  #     reboot_end: "{{ ansible_date_time.iso8601 }}"
-  #   ignore_errors: yes
+  - name:
+    set_fact:
+      reboot_end: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
   
-  # - name: Suche nach verfügbaren Updates
-  #   ansible.windows.win_updates:
-  #     state: searched
-  #   register: update_result_after
-  #   ignore_errors: yes
+  - name: Suche nach verfügbaren Updates
+    ansible.windows.win_updates:
+      state: searched
+    register: update_result_after
+    ignore_errors: yes
 
-  # - name: Show Debug msg
-  #   ansible.builtin.debug:
-  #     msg: "{{ update_result_after }}"
-  #   ignore_errors: yes
+  - name: Show Debug msg
+    ansible.builtin.debug:
+      msg: "{{ update_result_after }}"
+    ignore_errors: yes
 
-  # - name: Write Logfile
-  #   lineinfile:
-  #     create: yes
-  #     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
-  #     line: |
-  #       {{ inventory_hostname }}({{ ansible_facts.os_name }}):
-  #       Updates({{ update_result.found_update_count }})
-  #       {% for update in update_result.updates %}
-  #       - {{ update_result.updates[update].title }}
-  #       {% endfor %}
-  #       ToDo: Neustart von {{ reboot_start }} bis {{ reboot_end }} =
-  #       ToDo: Rescan intern (0) =
-  #       ToDo: Festplattenspeicher 21GB =
-  #       {{ test_string }}
-  #       ToDo: WSUS Status prüfen =
-  #       ToDo: Logs > Anwendung = 
-  #       ToDo: Logs > System = 
-  #       ToDo: Abmelden = 
-  #   delegate_to: localhost
-  #   ignore_errors: yes
+  - name: Write Logfile
+    lineinfile:
+      create: yes
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+      line: |
+        {{ inventory_hostname }}({{ ansible_facts.os_name }}):
+        Updates({{ update_result.found_update_count }})
+        {% for update in update_result.updates %}
+        - {{ update_result.updates[update].title }}
+        {% endfor %}
+        ToDo: Neustart von {{ reboot_start }} bis {{ reboot_end }} =
+        ToDo: Rescan intern (0) =
+        ToDo: Festplattenspeicher 21GB =
+        {{ test_string }}
+        ToDo: WSUS Status prüfen =
+        ToDo: Logs > Anwendung = 
+        ToDo: Logs > System = 
+        ToDo: Abmelden = 
+    delegate_to: localhost
+    ignore_errors: yes
