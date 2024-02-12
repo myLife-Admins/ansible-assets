@@ -122,13 +122,6 @@
   - name:
     set_fact:
       reboot_end: "{{ ansible_date_time.iso8601 }}"
-    when: update_result.reboot_required
-    ignore_errors: yes
-  
-  - name: Show Debug msg
-    ansible.builtin.debug:
-      msg: "{{ update_result_after }}"
-    when: update_result.reboot_required
     ignore_errors: yes
   
   - name: Suche nach verfügbaren Updates
