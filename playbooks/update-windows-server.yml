@@ -130,11 +130,13 @@
     
   - name: Gather disk facts
     ansible.windows.win_disk_facts:
+    ignore_errors: yes
   
   - name: Get free disk space
     ansible.builtin.set_fact:
       disk_free_gb: "{{ ansible_facts.disks | map(attribute='size_free') | map('int') | sum | default(0) | round(0, 'floor') / (1024**3) }}"
       disk_space_ok: "{{ disk_free_gb > 16 }}"
+    ignore_errors: yes
       
   - include_tasks: tasks/task-write-patchlog-windows.yml
     ignore_errors: yes
