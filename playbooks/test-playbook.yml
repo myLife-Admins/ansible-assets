@@ -13,4 +13,4 @@
   
   - name: msg
     debug:
-      msg: "reboot_start"
+      msg: "{{ reboot_start }}"
