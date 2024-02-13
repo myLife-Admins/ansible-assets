@@ -4,7 +4,7 @@
   become: false
   gather_facts: true
 
-  task:
+  tasks:
   - name: Get reboot started time
     shell: "date +%Y-%m-%d%H-%M-%S"
     register: reboot_start
