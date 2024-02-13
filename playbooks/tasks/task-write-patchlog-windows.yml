@@ -1,0 +1,21 @@
+  - name: Write Windows patch log
+    lineinfile:
+      create: yes
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ inventory_hostname }}-Generated.txt"
+      line: |
+        {{ inventory_hostname }}({{ ansible_facts.os_name }}):
+        Updates({{ update_result.found_update_count }}):
+        
+        {% for update in update_result.updates %}
+        - {{ update_result.updates[update].title }}
+        {% endfor %}
+        
+        ToDo: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} =
+        ToDo: Rescan intern (0) =
+        ToDo: Festplattenspeicher 21GB =
+        {{ test_string }}
+        ToDo: WSUS Status prüfen =
+        ToDo: Logs > Anwendung = 
+        ToDo: Logs > System = 
+        ToDo: Abmelden = 
+    delegate_to: localhost
