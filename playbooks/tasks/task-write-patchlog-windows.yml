@@ -5,7 +5,6 @@
       line: |
         {{ inventory_hostname }}({{ ansible_facts.os_name }}):
         Updates({{ update_result.found_update_count }}):
-        
         {% for update in update_result.updates %}
         - {{ update_result.updates[update].title }}
         {% endfor %}
