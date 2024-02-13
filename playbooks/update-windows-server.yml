@@ -87,13 +87,12 @@
     register: update_result
     ignore_errors: yes
   
-  - name:
-    set_fact:
-      reboot_start: "{{ ansible_date_time.iso8601 }}"
-    when: update_result.reboot_required 
+  - name: Get reboot started time
+    shell: "date +%Y-%m-%d%H-%M-%S"
+    register: reboot_start
     ignore_errors: yes
 
-  - name: Abfrage Windows version bevor patch
+  - name: Get windows version befor
     ansible.windows.win_shell: |
       (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
     register: initial_version
@@ -104,41 +103,27 @@
     when: update_result.reboot_required
     ignore_errors: yes
   
-  - name: Abfrage Windows version nach patch
+  - name: Get windows version after
     ansible.windows.win_shell: |
       (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
     register: patched_version
     ignore_errors: yes
-  # - name: Sammle Fakten erneut nach dem Neustart
-  #   setup:
-  #   ignore_errors: yes
 
-  - name: Vergleiche Windows-Versionen
+  - name: Compare windows versions = OK
     set_fact:
       test_string: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  OK"
     when: initial_version.stdout_lines != patched_version.stdout_lines
     ignore_errors: yes
   
-  - name: Vergleiche Windows-Versionen
+  - name: Compare windows versions = FAILED
     set_fact:
       test_string: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  FAILED!"
     when: initial_version.stdout_lines == patched_version.stdout_lines
     ignore_errors: yes
 
-  - name:
-    set_fact:
-      reboot_end: "{{ ansible_date_time.iso8601 }}"
-    ignore_errors: yes
-  
-  - name: Suche nach verfügbaren Updates
-    ansible.windows.win_updates:
-      state: searched
-    register: update_result_after
-    ignore_errors: yes
-
-  - name: Show Debug msg
-    ansible.builtin.debug:
-      msg: "{{ update_result_after }}"
+  - name: Get reboot finished time
+    shell: "date +%Y-%m-%d%H-%M-%S"
+    register: reboot_end
     ignore_errors: yes
 
   - name: Write Logfile
@@ -151,7 +136,7 @@
         {% for update in update_result.updates %}
         - {{ update_result.updates[update].title }}
         {% endfor %}
-        ToDo: Neustart von {{ reboot_start }} bis {{ reboot_end }} =
+        ToDo: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} =
         ToDo: Rescan intern (0) =
         ToDo: Festplattenspeicher 21GB =
         {{ test_string }}
