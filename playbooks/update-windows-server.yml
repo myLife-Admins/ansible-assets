@@ -95,7 +95,7 @@
 
   - name: Get windows version before
     ansible.windows.win_shell: |
-      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
+      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
     register: initial_version
     ignore_errors: yes
 
@@ -106,7 +106,7 @@
   
   - name: Get windows version after
     ansible.windows.win_shell: |
-      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
+      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
     register: patched_version
     ignore_errors: yes
 
