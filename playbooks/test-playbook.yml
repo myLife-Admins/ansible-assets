@@ -1,0 +1,16 @@
+---
+- name: Erstelle Snapshots
+  hosts: localhost
+  become: false
+  gather_facts: true
+
+  task:
+  - name: Get reboot started time
+    shell: "date +%Y-%m-%d%H-%M-%S"
+    register: reboot_start
+    delegate_to: localhost
+    ignore_errors: yes
+  
+  - name: msg
+    debug:
+      msg: "reboot_start"

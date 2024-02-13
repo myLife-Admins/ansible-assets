@@ -93,7 +93,7 @@
     delegate_to: localhost
     ignore_errors: yes
 
-  - name: Get windows version befor
+  - name: Get windows version before
     ansible.windows.win_shell: |
       (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').LCUVer
     register: initial_version
