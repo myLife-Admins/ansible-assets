@@ -130,7 +130,6 @@
     
   - name: Gather disk facts
     ansible.windows.win_disk_facts:
-    ignore_errors: yes
   
   - name: Get free disk space
     ansible.builtin.set_fact:
