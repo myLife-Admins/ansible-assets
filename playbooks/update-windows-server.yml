@@ -115,14 +115,14 @@
 
   - name: Vergleiche Windows-Versionen
     set_fact:
-      test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ patched_version }} =  OK"
-    when: initial_version != patched_version
+      test_string: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  OK"
+    when: initial_version.stdout_lines != patched_version.stdout_lines
     ignore_errors: yes
   
   - name: Vergleiche Windows-Versionen
     set_fact:
-      test_string: "ToDo: Versionsupdate von {{ initial_version }} zu {{ patched_version }} =  FAILED!"
-    when: initial_version == patched_version
+      test_string: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  FAILED!"
+    when: initial_version.stdout_lines == patched_version.stdout_lines
     ignore_errors: yes
 
   - name:
