@@ -10,8 +10,7 @@
         {% endfor %}
         
         ToDo: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} =
-        ToDo: Rescan intern (0) =
-        ToDo: Festplattenspeicher 21GB =
+        ToDo: Festplattenspeicher {{ disk_free_gb }}GB = {{ disk_space_ok }}
         {{ test_string }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung = 
