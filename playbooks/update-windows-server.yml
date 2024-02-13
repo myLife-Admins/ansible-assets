@@ -127,7 +127,10 @@
     register: reboot_end
     delegate_to: localhost
     ignore_errors: yes
-
+    
+  - name: Gather disk facts
+    ansible.windows.win_disk_facts:
+  
   - name: Get free disk space
     ansible.builtin.set_fact:
       disk_free_gb: "{{ ansible_facts.disks | map(attribute='size_free') | map('int') | sum | default(0) | round(0, 'floor') / (1024**3) }}"
