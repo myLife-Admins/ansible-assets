@@ -90,6 +90,7 @@
   - name: Get reboot started time
     shell: "date +%Y-%m-%d%H-%M-%S"
     register: reboot_start
+    delegate_to: localhost
     ignore_errors: yes
 
   - name: Get windows version befor
@@ -124,6 +125,7 @@
   - name: Get reboot finished time
     shell: "date +%Y-%m-%d%H-%M-%S"
     register: reboot_end
+    delegate_to: localhost
     ignore_errors: yes
 
   - name: Write Logfile
