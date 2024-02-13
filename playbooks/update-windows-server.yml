@@ -130,12 +130,12 @@
     
   - name: Erhalte den freien Speicherplatz auf dem C-Laufwerk
     ansible.windows.win_shell: |
-      Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB }
+      "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
     register: disk_space
 
   - name: Setze Fakt für freien Speicherplatz in GB
     set_fact:
-      disk_space_gb: "{{ (disk_space.stdout | trim | float) | round(2, 'floor') }}"
+      disk_space_gb: "{{ disk_space.stdout }}"
 
   # - name: Prüfe, ob der freie Speicherplatz größer als 16 GB ist = OK
   #   set_fact:
