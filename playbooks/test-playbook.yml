@@ -1,10 +1,27 @@
 ---
-- name: Erstelle Snapshots
+- name: finde server auf vcenter
   hosts: "{{ target_hosts }}"
   become: false
-  gather_facts: true
-
+  gather_facts: false
+  
+  vars:
+  vcenter_hostname: vcenter1.gutingia.local
+  datacenter_name: myLife
+  
   tasks:
-  - name: msg
+  - name: Versuche, Informationen über die VM zu erhalten
+    community.vmware.vmware_guest_info:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      validate_certs: no
+      datacenter: "{{ datacenter_name }}"
+      folder: "/{{ datacenter_name }}/vm/"
+      name: "{{ vm_name }}"
+    register: vm_info
+    ignore_errors: yes
+    delegate_to: localhost
+    
+  - name: test 
     debug:
-      msg: "{{ target_hosts }}"
+      msg: "{{ vm_info }}"
