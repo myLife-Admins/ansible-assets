@@ -16,7 +16,6 @@
       ToDo: Logs > Anwendung = 
       ToDo: Logs > System = 
       ToDo: Abmelden = 
-  delegate_to: localhost
 
 - name: Write Windows patch log
   local_action:
