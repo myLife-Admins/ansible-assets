@@ -129,13 +129,16 @@
     ignore_errors: yes
     
   - name: Erhalte den freien Speicherplatz auf dem C-Laufwerk
-    ansible.windows.win_shell: |
-      "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
+    ansible.windows.win_powershell:
+      script: |
+        "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
     register: disk_space
+    ignore_errors: yes
 
   - name: Setze Fakt für freien Speicherplatz in GB
     set_fact:
-      disk_space_gb: "{{ disk_space.stdout_lines }}"
+      disk_space_gb: "{{ disk_space.output }}"
+    ignore_errors: yes
 
   - include_tasks: tasks/task-write-patchlog-windows.yml
     ignore_errors: yes
