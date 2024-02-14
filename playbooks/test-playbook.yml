@@ -17,7 +17,7 @@
       validate_certs: no
       datacenter: "{{ datacenter_name }}"
       folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ vm_name }}"
+      name: "{{ inventory_hostname }}"
     register: vm_info
     ignore_errors: yes
     delegate_to: localhost
