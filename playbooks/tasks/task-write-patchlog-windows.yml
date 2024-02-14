@@ -1,7 +1,7 @@
-- name: Sammle Patch-Informationen für jeden Host
-  ansible.builtin.set_fact:
-    path: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
-    line: |
+- name: Write Windows patch log
+  ansible.builtin.copy:
+    force: false
+    content: |
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
       Updates({{ update_result.found_update_count }}):
       {% for update in update_result.updates %}
@@ -15,11 +15,5 @@
       ToDo: Logs > Anwendung = 
       ToDo: Logs > System = 
       ToDo: Abmelden = 
+    dest: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
   delegate_to: localhost
-
-# - name: Write Windows patch log
-#   local_action:
-#     module: copy
-#     content: "{{ patch_info }}"
-#     dest: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
-#   delegate_to: localhost
