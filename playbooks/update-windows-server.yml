@@ -38,7 +38,7 @@
 #     delegate_to: localhost
 
 - name: Patch Windows Host
-  hosts: windows_test
+  hosts: "{{ target_hosts }}"
   become: false
   gather_facts: true
 
