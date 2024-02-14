@@ -137,15 +137,15 @@
     set_fact:
       disk_space_gb: "{{ disk_space.stdout_lines }}"
 
-  # - name: Prüfe, ob der freie Speicherplatz größer als 16 GB ist = OK
-  #   set_fact:
-  #     disk_space_ok: OK
-  #   when: disk_space_gb >= 16
+  - name: Prüfe, ob der freie Speicherplatz größer als 16 GB ist = OK
+    set_fact:
+      disk_space_ok: OK
+    when: disk_space_gb >= 16
   
-  # - name: Prüfe, ob der freie Speicherplatz größer als 16 GB ist = FAILED
-  #   set_fact:
-  #     disk_space_ok: FAILED
-  #   when: disk_space_gb <= 16
+  - name: Prüfe, ob der freie Speicherplatz größer als 16 GB ist = FAILED
+    set_fact:
+      disk_space_ok: FAILED
+    when: disk_space_gb <= 16
 
   - include_tasks: tasks/task-write-patchlog-windows.yml
     ignore_errors: yes
