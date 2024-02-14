@@ -7,7 +7,7 @@
   tasks:
   - name: Führe PowerShell-Befehl ohne Benutzerprofile aus
     ansible.windows.win_shell: |
-      powershell.exe -NoProfile -Command "Get-PSDrive C"
+      Get-PSDrive C
     register: ps_output
   
   - name: msg
