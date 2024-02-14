@@ -1,6 +1,6 @@
 ---
 - name: Erstelle Snapshots
-  hosts: localhost
+  hosts: windows_test
   become: false
   gather_facts: true
 
