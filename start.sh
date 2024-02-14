@@ -1,8 +1,8 @@
 #!/bin/bash
 
+clear
 # Definiere ein Array mit den Menüoptionen
 options=(
-    "All"
     "Manage"
     "Test"
     "Entwicklung (No autopatch: inet1)"
@@ -11,16 +11,14 @@ options=(
     "PM"
     "Produktion"
     "ProduktionKrit (Not autopatch: FTP1, FTP2, FS5)"
-    "Testrun with \$TestRun"
-    "Specific Server"
-    "ALL AD - DO NOT USE YET!"
+    "debug"
 )
 
 # Funktion, um das Menü anzuzeigen
 print_menu() {
     echo "Wähle eine Option für das Patching:"
     for i in "${!options[@]}"; do
-        printf "  [%2d] %s\n" "$i" "${options[$i]}"
+        printf "[%2d] %s\n" "$i" "${options[$i]}"
     done
     echo "  Geben Sie die Zahl für die Auswahl ein und drücken Sie [ENTER]:"
 }
@@ -48,7 +46,7 @@ if [[ $selection =~ ^[0-9]+$ ]] && [ "$selection" -ge 0 ] && [ "$selection" -lt 
     echo "Starte Playbook mit target_hosts=$target_hosts"
     
     # Ansible-Playbook mit der gewählten target_hosts-Variable ausführen
-    ansible-playbook /pfad/zu/deinem/playbook.yml -e "target_hosts=$target_hosts"
+    ansible-playbook /opt/ansible-assets/playbooks/update-windows-server.yml -e "target_hosts=$target_hosts"
 else
     echo "Ungültige Auswahl."
 fi
