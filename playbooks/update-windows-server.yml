@@ -1,7 +1,7 @@
 
 ---
 - name: Erstelle Snapshots
-  hosts: localhost
+  hosts: windows_test
   become: false
   gather_facts: true
   
@@ -29,9 +29,11 @@
       name: "{{ item }}"
       state: present
       memory_dump: yes
-      snapshot_name: "Update-{{ ansible_date_time.date }}"
-      description: "Automatisch erstellter Snapshot vor Update"
-    loop: "{{ groups['windows_test'] }}"
+      snapshot_name: "Windows_Update-{{ ansible_date_time.date }}"
+      description: >
+        "Dieser Snapshot wurde automatisch von Ansible am {{ ansible_date_time.date }} um {{ ansible_date_time.time }}
+        vor der Durchführung von Systemupdates generiert. Dies dient der Sicherung des aktuellen Systemzustands,
+        um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
     throttle: 2
     delegate_to: localhost
 
