@@ -1,7 +1,6 @@
-- name: Write Windows patch log
-  local_action:
-    module: copy
-    content: |
+- name: Sammle Patch-Informationen für jeden Host
+  ansible.builtin.set_fact:
+    patch_info: |
       ###########################################################################################################################
 
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
@@ -17,6 +16,11 @@
       ToDo: Logs > Anwendung = 
       ToDo: Logs > System = 
       ToDo: Abmelden = 
-    dest: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
   delegate_to: localhost
-  # run_once: true
+
+- name: Write Windows patch log
+  local_action:
+    module: copy
+    content: "{{ patch_info }}"
+    dest: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
+  run_once: true
