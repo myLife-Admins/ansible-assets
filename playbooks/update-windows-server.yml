@@ -135,7 +135,7 @@
 
   - name: Setze Fakt für freien Speicherplatz in GB
     set_fact:
-      disk_space_gb: "{{ disk_space.stdout }}"
+      disk_space_gb: "{{ disk_space.stdout_lines }}"
 
   # - name: Prüfe, ob der freie Speicherplatz größer als 16 GB ist = OK
   #   set_fact:
