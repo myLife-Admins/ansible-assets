@@ -137,10 +137,6 @@
     set_fact:
       disk_space_gb: "{{ disk_space.stdout_lines }}"
 
-  - name: Extrahiere den reinen Text aus der Ausgabe
-    set_fact:
-      clean_disk_space_gb: "{{ disk_space_gb | regex_replace('^\\[\\''|'\\'\\']$', '') }}"
-
   - include_tasks: tasks/task-write-patchlog-windows.yml
     ignore_errors: yes
 
