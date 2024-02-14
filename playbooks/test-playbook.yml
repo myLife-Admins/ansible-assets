@@ -5,8 +5,8 @@
   gather_facts: false
   
   vars:
-  vcenter_hostname: vcenter1.gutingia.local
-  datacenter_name: myLife
+    vcenter_hostname: vcenter1.gutingia.local
+    datacenter_name: myLife
   
   tasks:
   - name: Versuche, Informationen über die VM zu erhalten
@@ -21,7 +21,7 @@
     register: vm_info
     ignore_errors: yes
     delegate_to: localhost
-    
+
   - name: test 
     debug:
       msg: "{{ vm_info }}"
