@@ -1,11 +1,10 @@
-  - name: Write Windows patch log
-    lineinfile:
-      create: yes
-      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
-      line: |
+  - name: Prepare log file
+    set_fact:
+    log_string: |
+        {% for host in groups['target_hosts'] %}
         ###########################################################################################################################
 
-        {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
+        {{ host }} ({{ ansible_facts.os_name }}):
         Updates({{ update_result.found_update_count }}):
         {% for update in update_result.updates %}
         - {{ update_result.updates[update].title }}
@@ -18,4 +17,11 @@
         ToDo: Logs > Anwendung = 
         ToDo: Logs > System = 
         ToDo: Abmelden = 
-    # delegate_to: localhost
+        {% endfor %}
+  - name: Write Windows patch log
+    lineinfile:
+      create: yes
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
+      line: "{{ log_string }}"
+
+    delegate_to: localhost
