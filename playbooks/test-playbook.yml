@@ -13,4 +13,4 @@
   
   - name: msg
     debug:
-      msg: "{{ ps_output }}"
+      msg: "{{ ps_output.output }}"
