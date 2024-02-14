@@ -4,18 +4,18 @@
     ###########################################################################################################################
 
     {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
-    Updates({{ update_result.found_update_count }}):
-    {% for update in update_result.updates %}
-    - {{ update_result.updates[update].title }}
-    {% endfor %}
-    
-    Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
-    ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
-    {{ windows_verson_check }}
-    ToDo: WSUS Status prüfen =
-    ToDo: Logs > Anwendung = 
-    ToDo: Logs > System = 
-    ToDo: Abmelden = 
+      Updates({{ update_result.found_update_count }}):
+      {% for update in update_result.updates %}
+       - {{ update_result.updates[update].title }}
+      {% endfor %}
+      
+      Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
+      ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
+      {{ windows_verson_check }}
+      ToDo: WSUS Status prüfen =
+      ToDo: Logs > Anwendung = 
+      ToDo: Logs > System = 
+      ToDo: Abmelden = 
 
     EOF
   delegate_to: localhost
