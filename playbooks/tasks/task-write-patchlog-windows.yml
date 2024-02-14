@@ -1,27 +1,43 @@
-  - name: Prepare log file
-    set_fact:
-    log_string: |
-        {% for host in groups['target_hosts'] %}
-        ###########################################################################################################################
+# - name: Write Windows patch log
+#   lineinfile:
+#     create: yes
+#     path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Updates-{{ inventory_hostname }}-Generated.txt"
+#     line: |
+#       ###########################################################################################################################
 
-        {{ host }} ({{ ansible_facts.os_name }}):
-        Updates({{ update_result.found_update_count }}):
-        {% for update in update_result.updates %}
-        - {{ update_result.updates[update].title }}
-        {% endfor %}
-        
-        Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
-        ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
-        {{ windows_verson_check }}
-        ToDo: WSUS Status prüfen =
-        ToDo: Logs > Anwendung = 
-        ToDo: Logs > System = 
-        ToDo: Abmelden = 
-        {% endfor %}
-  - name: Write Windows patch log
-    lineinfile:
-      create: yes
-      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
-      line: "{{ log_string }}"
+#       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
+#       Updates({{ update_result.found_update_count }}):
+#       {% for update in update_result.updates %}
+#       - {{ update_result.updates[update].title }}
+#       {% endfor %}
+      
+#       Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
+#       ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
+#       {{ windows_verson_check }}
+#       ToDo: WSUS Status prüfen =
+#       ToDo: Logs > Anwendung = 
+#       ToDo: Logs > System = 
+#       ToDo: Abmelden = 
+#   delegate_to: localhost
+- name: Write Windows patch log
+  local_action:
+    module: copy
+    content: |
+      ###########################################################################################################################
 
-    delegate_to: localhost
+      {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
+      Updates({{ update_result.found_update_count }}):
+      {% for update in update_result.updates %}
+      - {{ update_result.updates[update].title }}
+      {% endfor %}
+      
+      Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
+      ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
+      {{ windows_verson_check }}
+      ToDo: WSUS Status prüfen =
+      ToDo: Logs > Anwendung = 
+      ToDo: Logs > System = 
+      ToDo: Abmelden = 
+    dest: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
+  run_once: true
+  delegate_to: localhost
