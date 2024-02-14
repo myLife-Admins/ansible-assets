@@ -9,9 +9,9 @@
         - {{ update_result.updates[update].title }}
         {% endfor %}
         
-        ToDo: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} =
+        Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
         ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
-        {{ test_string }}
+        {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung = 
         ToDo: Logs > System = 
