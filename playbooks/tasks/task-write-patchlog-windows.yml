@@ -1,9 +1,11 @@
   - name: Write Windows patch log
     lineinfile:
       create: yes
-      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Updates-{{ inventory_hostname }}-Generated.txt"
+      path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
       line: |
-        {{ inventory_hostname }}({{ ansible_facts.os_name }}):
+        ###########################################################################################################################
+
+        {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
         Updates({{ update_result.found_update_count }}):
         {% for update in update_result.updates %}
         - {{ update_result.updates[update].title }}
