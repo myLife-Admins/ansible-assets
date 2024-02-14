@@ -5,12 +5,11 @@
   gather_facts: true
 
   tasks:
-  - name: Get reboot started time
-    shell: "date +%Y-%m-%d%H-%M-%S"
-    register: reboot_start
-    delegate_to: localhost
-    ignore_errors: yes
+  - name: Führe PowerShell-Befehl ohne Benutzerprofile aus
+    ansible.windows.win_shell: |
+      powershell.exe -NoProfile -Command "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
+    register: ps_output
   
   - name: msg
     debug:
-      msg: "{{ reboot_start.stdout }}"
+      msg: "{{ ps_output }}"

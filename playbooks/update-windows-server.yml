@@ -31,9 +31,9 @@
       memory_dump: yes
       snapshot_name: "Update-{{ ansible_date_time.date }}"
       description: "Automatisch erstellter Snapshot vor Update"
-    delegate_to: localhost
-    throttle: 2
     loop: "{{ groups['windows_test'] }}"
+    throttle: 2
+    delegate_to: localhost
 
 - name: Patch Windows Host
   hosts: windows_test
