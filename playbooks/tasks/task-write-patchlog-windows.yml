@@ -22,4 +22,4 @@
     module: copy
     content: "{{ patch_info }}"
     dest: "/mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt"
-  run_once: true
+  delegate_to: localhost
