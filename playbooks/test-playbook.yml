@@ -24,4 +24,4 @@
 
   - name: test 
     debug:
-      msg: "{{ vm_info }}"
+      msg: "{{ vm_info.failed }}"
