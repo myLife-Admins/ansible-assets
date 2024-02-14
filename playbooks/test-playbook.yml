@@ -15,5 +15,9 @@
       msg: "{{ ps_output.stdout }}"
 
   - name: msg clean
+    set_fact:
+      msg_clean: "{{ ps_output.stdout | regex_replace('\r\n', '') }}"
+
+  - name: msg clean clean
     debug:
-      msg: "{{ ps_output.stdout | regex_replace('\r\n', '') }}"
+      msg: "{{ ps_output.stdout | regex_replace('\r', '') }}"
