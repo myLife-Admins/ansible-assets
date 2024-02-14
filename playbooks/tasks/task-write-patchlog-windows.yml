@@ -3,7 +3,7 @@
     patch_info: |
       ###########################################################################################################################
 
-      {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
+      {{ item }} ({{ ansible_facts.os_name }}):
       Updates({{ update_result.found_update_count }}):
       {% for update in update_result.updates %}
       - {{ update_result.updates[update].title }}
@@ -16,6 +16,7 @@
       ToDo: Logs > Anwendung = 
       ToDo: Logs > System = 
       ToDo: Abmelden = 
+  loop: "{{ groups[target_hosts] }}"
 
 - name: Write Windows patch log
   local_action:
