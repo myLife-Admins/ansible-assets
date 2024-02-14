@@ -7,9 +7,13 @@
   tasks:
   - name: Führe PowerShell-Befehl ohne Benutzerprofile aus
     ansible.windows.win_shell: |
-      Get-PSDrive C
+      (Get-PSDrive C).free
     register: ps_output
   
   - name: msg
     debug:
-      msg: "{{ ps_output }}"
+      msg: "{{ ps_output.stdout }}"
+
+  - name: msg clean
+    debug:
+      msg: "{{ ps_output.stdout | regex_replace('\r\n', '') }}"
