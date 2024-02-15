@@ -23,7 +23,7 @@
 
 - name: Write Windows patch log
   ansible.builtin.shell: |
-    cat <<EOF >> /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt
+    cat <<EOF >> /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ hostname_for_file }}-Generated.txt
     ########################################## {{ current_time }} ##########################################
     Updates:
     {{ "-" + update_info.stdout | default("No updates available.") }}
