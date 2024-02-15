@@ -7,8 +7,8 @@
   gather_facts: true
   
   tasks:
-    - include_tasks: tasks/linux/dist-upgrade.yml
     - include_tasks: tasks/linux/write-log.yml
+    - include_tasks: tasks/linux/dist-upgrade.yml
     - name: Dist-upgrade
       ansible.builtin.apt:
         upgrade: dist
