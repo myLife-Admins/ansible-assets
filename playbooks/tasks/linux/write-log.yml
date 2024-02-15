@@ -21,17 +21,13 @@
     hostname_for_file: "{{ 'ansible' if inventory_hostname == 'localhost' else inventory_hostname }}"
   delegate_to: localhost
 
-- name: Create log file
-  file:
-    path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
-    state: touch
+- name: Write Windows patch log
+  ansible.builtin.shell: |
+    cat <<EOF >> /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Updates-{{ groupe_name }}-Generated.txt
+    ########################################## {{ current_time }} ##########################################
+    Updates:
+    {{ "-" + update_info.stdout | default("No updates available.") }}
+    EOF
   delegate_to: localhost
-
-- name: Schreibe Update-Informationen in eine Datei
-  lineinfile:
-    path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt"
-    line: |
-      ########################################## {{ current_time }} ##########################################
-      Updates:
-      {{ "-" + update_info.stdout | default("No updates available.") }}
-  delegate_to: localhost
+  args:
+    executable: /bin/bash
