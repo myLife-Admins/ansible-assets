@@ -1,54 +1,136 @@
-- name: Update Windows Server
-  hosts: "windows_test" #"{{ hosts_list }}"
-  become: true
+---
+- name: Patch Windows Host
+  hosts: "{{ target_hosts }}"
+  become: false
   gather_facts: true
-  vars_prompt:
-#     - name: hosts_list
-#       prompt:
-#       - "Enter hosts"
-#       - "windows_test"
-#       private: false
-    - name: domain_admin_username 
-      prompt: "Admin (bsp. admin@gutingia.local)"
-      private: false
-    - name: domain_admin_password
-      prompt: "Passwort"
-      unsafe: true
-      private: true
 
+  # vars_prompt:
+  # - name: ansible_user 
+  #   prompt: "Admin (bsp. adminjs)"
+  #   private: false
+  # - name: ansible_password
+  #   prompt: "Passwort"
+  #   private: true
+  
   vars:
-    domain_admin_user: ''
-    domain_admin_password: ''
+    vcenter_hostname: vcenter1.gutingia.local
+    datacenter_name: myLife
 
   tasks:
+  - name: Set groupname
+    set_fact:
+      groupe_name: "{{ target_hosts.split('_')[1] }}"
+
+  - name: Erstelle Snapshots für jede VM
+    community.vmware.vmware_guest_snapshot:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      validate_certs: no
+      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
+      folder: "/{{ datacenter_name }}/vm/"
+      name: "{{ inventory_hostname }}"
+      state: present
+      memory_dump: yes
+      snapshot_name: "Windows_Update-{{ ansible_date_time.date }}"
+      description: >
+        "Dieser Snapshot wurde automatisch von Ansible am {{ ansible_date_time.date }} um {{ ansible_date_time.time }}
+        vor der Durchführung von Systemupdates generiert. Dies dient der Sicherung des aktuellen Systemzustands,
+        um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
+    throttle: 2
+    delegate_to: localhost
+
   - name: Get current year and month
     set_fact:
       current_year: "{{ ansible_date_time.year }}"
       current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
       current_time: "{{ ansible_date_time.iso8601 }}"
     delegate_to: localhost
+    ignore_errors: yes
 
   - name: Create directories for current year and month
     file:
       path: "/mnt/protokolle/{{ current_year }}/{{ current_month }}"
       state: directory
     delegate_to: localhost
-  
+    ignore_errors: yes
+
+  - name: Suche nach verfügbaren Updates
+    ansible.windows.win_updates:
+      state: searched
+    register: update_result
+    ignore_errors: yes
+
   - name: Install all critical and security updates
-    win_updates:
+    ansible.windows.win_updates:
       category_names:
       - CriticalUpdates
       - SecurityUpdates
       - UpdateRollups
+      - Updates
+      - FeaturePacks
+      - ServicePacks
+      - DefinitionUpdates
+      - Tools
+      - Guidance
+      - UpdateRollup
       state: installed
     register: update_result
+    ignore_errors: yes
   
+  - name: Get reboot started time
+    shell: "date +%Y-%m-%d_%H:%M:%S"
+    register: reboot_start
+    delegate_to: localhost
+    ignore_errors: yes
+
+  - name: Get windows version before
+    ansible.windows.win_shell: |
+      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
+    register: initial_version
+    ignore_errors: yes
+
   - name: reboot host if required
     win_reboot:
     when: update_result.reboot_required
+    ignore_errors: yes
   
-  - name: Create Hello World Text File
-    copy:
-      content: "Hello, World 2!"
-      dest: "/mnt/protokolle/{{ current_year }}/{{ current_month }}/Serverpatch/hello_world.txt"
+  - name: Get windows version after
+    ansible.windows.win_shell: |
+      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
+    register: patched_version
+    ignore_errors: yes
+
+  - name: Compare windows versions = OK
+    set_fact:
+      windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  OK"
+    when: initial_version.stdout_lines != patched_version.stdout_lines
+    ignore_errors: yes
+  
+  - name: Compare windows versions = FAILED
+    set_fact:
+      windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  FAILED!"
+    when: initial_version.stdout_lines == patched_version.stdout_lines
+    ignore_errors: yes
+
+  - name: Get reboot finished time
+    shell: "date +%Y-%m-%d_%H:%M:%S"
+    register: reboot_end
     delegate_to: localhost
+    ignore_errors: yes
+    
+  - name: Erhalte den freien Speicherplatz auf dem C-Laufwerk
+    ansible.windows.win_powershell:
+      script: |
+        "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
+    register: disk_space
+    ignore_errors: yes
+
+  - name: Setze Fakt für freien Speicherplatz in GB
+    set_fact:
+      disk_space_gb: "{{ disk_space.output }}"
+    ignore_errors: yes
+
+  - include_tasks: tasks/task-write-patchlog-windows.yml
+    ignore_errors: yes
+
