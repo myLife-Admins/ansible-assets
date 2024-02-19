@@ -35,7 +35,7 @@
   - name: msg
     debug:
       msg: "{{ service_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
-    when: service_info is defiend
+    when: service_info is defined
 
   # - name: Stoppe Dienste, die existieren und laufen
   #   ansible.windows.win_service:
