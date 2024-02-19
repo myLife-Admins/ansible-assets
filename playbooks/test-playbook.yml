@@ -36,7 +36,7 @@
     debug:
       msg: "{{ service_info }}"
     when: 
-      - service_info is defined
+      - service_info.exists
       #- service_info.state == 'running'
 
   # - name: Stoppe Dienste, die existieren und laufen
