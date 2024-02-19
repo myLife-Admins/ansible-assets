@@ -34,9 +34,10 @@
 
   - name: msg
     debug:
-      msg: "{{ service_info }}"
+      msg: "{{ item }}"
+    loop: "{{ service_info }}"
     when: 
-      - service_info.exists
+      - item.exists
       #- service_info.state == 'running'
 
   # - name: Stoppe Dienste, die existieren und laufen
