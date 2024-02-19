@@ -42,5 +42,5 @@
       state: stopped
     when: 
       - item.exists
-      - item.state == 'running'
+      - item.state == 'started'
     loop: "{{ service_info.results }}"
