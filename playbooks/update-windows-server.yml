@@ -31,6 +31,7 @@
       folder: "/{{ datacenter_name }}/vm/"
       name: "{{ inventory_hostname }}"
     register: vm_info
+    delegate_to: localhost
     ignore_errors: yes
 
   - name: Erstelle Snapshots für jede VM
