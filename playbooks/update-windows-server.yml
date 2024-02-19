@@ -21,22 +21,27 @@
     set_fact:
       groupe_name: "{{ target_hosts.split('_')[1] }}"
 
-  - name: Versuche, Informationen über die VM zu erhalten
-    community.vmware.vmware_guest_info:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
-      validate_certs: no
-      datacenter: "{{ datacenter_name }}"
-      folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ inventory_hostname }}"
-    register: vm_info
-    delegate_to: localhost
-    ignore_errors: yes
+  # - name: Versuche, Informationen über die VM zu erhalten
+  #   community.vmware.vmware_guest_info:
+  #     hostname: "{{ vcenter_hostname }}"
+  #     username: "{{ ansible_user }}"
+  #     password: "{{ ansible_password }}"
+  #     validate_certs: no
+  #     datacenter: "{{ datacenter_name }}"
+  #     folder: "/{{ datacenter_name }}/vm/"
+  #     name: "{{ inventory_hostname }}"
+  #   register: vm_info
+  #   delegate_to: localhost
+  #   ignore_errors: yes
 
-  - name:
-    debug:
-      msg: "{{ vm_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+  # - name:
+  #   debug:
+  #     msg: "{{ vm_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+
+  # - name: Mache etwas, wenn die VM existiert
+  #   debug:
+  #     msg: "VM {{ inventory_hostname }} existiert."
+  #   when: vm_info.instance is defined
 
   - name: Erstelle Snapshots für jede VM
     community.vmware.vmware_guest_snapshot:
@@ -56,7 +61,7 @@
         um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
     throttle: 2
     delegate_to: localhost
-    when: vm_info[inventory_hostname].instance is defined
+    #when: vm_info[inventory_hostname].instance is defined
 
   - name: Get current year and month
     set_fact:
