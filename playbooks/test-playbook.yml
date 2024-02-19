@@ -34,7 +34,7 @@
 
   - name: msg
     debug:
-      msg: "{{ service_info.state }}"
+      msg: "{{ service_info }}"
     when: 
       - service_info is defined
       #- service_info.state == 'running'
