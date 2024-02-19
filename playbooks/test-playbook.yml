@@ -34,17 +34,23 @@
 
   - name: msg
     debug:
-      msg: "{{ item.services.dependencies }}"
+      msg: "{{ item.services }}"
     loop: "{{ service_info.results }}"
     when: 
       - item.exists
-      #- item.state == 'running'
 
-  # - name: Stoppe Dienste, die existieren und laufen
-  #   ansible.windows.win_service:
-  #     name: "{{ item.item }}"
-  #     state: stopped
-  #   loop: "{{ service_info.results }}"
-  #   when: 
-  #     - service_info is defined
-  #     - service_info.state == 'running'
+  - name: Stoppe Dienste, die existieren
+    ansible.windows.win_service:
+      name: "{{ item.item }}"
+      state: stopped
+    loop: "{{ service_info.results }}"
+    when: 
+      - item.exists
+
+  - name: Starte Dienste, die existieren
+    ansible.windows.win_service:
+      name: "{{ item.item }}"
+      state: started
+    loop: "{{ service_info.results }}"
+    when: 
+      - item.exists
