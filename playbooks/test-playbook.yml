@@ -34,10 +34,10 @@
 
   - name: msg
     debug:
-      msg: |
-        ############################### {{ inventory_hostname }} ###############################
-        "{{ service_info }}"
-    when: service_info is defined
+      msg: "{{ service_info.state }}"
+    when: 
+      - service_info is defined
+      - service_info.state == 'running'
 
   # - name: Stoppe Dienste, die existieren und laufen
   #   ansible.windows.win_service:
@@ -45,5 +45,5 @@
   #     state: stopped
   #   loop: "{{ service_info.results }}"
   #   when: 
-  #     - item.ansible_facts.services[item.item].exists
-  #     - item.ansible_facts.services[item.item].state == 'running'
+  #     - service_info is defined
+  #     - service_info.state == 'running'
