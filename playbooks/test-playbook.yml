@@ -17,49 +17,26 @@
     datacenter_name: myLife
 
   tasks:
-  - name: Set groupname
-    set_fact:
-      groupe_name: "{{ target_hosts.split('_')[1] }}"
+  - name: Get service status (Windows)
+    ansible.windows.win_service_info:
+      name: "{{ item }}"
+    register: service_info
+    loop:
+      - Spooler
+      - CogonCalculationService
+      - CogonCommonService
+      - CogonCommunicationService
+      - CogonMonitoringProcess
+      - CogonPathMonitoringService
+      - CogonReportingService
+      - CogonServiceManager
+      - CogonShadowAccountingService
 
-  - name: Versuche, Informationen über die VM zu erhalten
-    community.vmware.vmware_guest_info:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
-      validate_certs: no
-      datacenter: "{{ datacenter_name }}"
-      folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ inventory_hostname }}"
-    register: vm_info
-    delegate_to: localhost
-    ignore_errors: yes
-
-  - name:
-    debug:
-      msg: "{{ vm_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
-
-  - name: Mache etwas, wenn die VM existiert
-    debug:
-      msg: "VM {{ inventory_hostname }} existiert."
-    when: vm_info.instance is defined
-
-
-  - name: Erstelle Snapshots für jede VM
-    community.vmware.vmware_guest_snapshot:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
-      validate_certs: no
-      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
-      folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ inventory_hostname }}"
-      state: present
-      memory_dump: yes
-      snapshot_name: "Windows_Update-{{ ansible_date_time.date }}"
-      description: >
-        "Dieser Snapshot wurde automatisch von Ansible am {{ ansible_date_time.date }} um {{ ansible_date_time.time }}
-        vor der Durchführung von Systemupdates generiert. Dies dient der Sicherung des aktuellen Systemzustands,
-        um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
-    throttle: 2
-    delegate_to: localhost
-    when: vm_info.instance is defined
+  - name: Stop services (Windows)
+    ansible.windows.win_service:
+      name: "{{ item.item }}"
+      state: stopped
+    when: 
+      - item.exists
+      - item.state == 'running'
+    loop: "{{ service_info.results }}"
