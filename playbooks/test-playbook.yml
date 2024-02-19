@@ -32,6 +32,10 @@
       - CogonServiceManager
       - CogonShadowAccountingService
 
+  - name: msg
+    debug:
+      msg: "{{ service_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+
   - name: Stop services (Windows)
     ansible.windows.win_service:
       name: "{{ item.item }}"
