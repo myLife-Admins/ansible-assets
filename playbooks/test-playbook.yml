@@ -35,7 +35,7 @@
   - name: msg
     debug:
       msg: "{{ item }}"
-    loop: "{{ service_info }}"
+    loop: "{{ service_info.results }}"
     when: 
       - item.exists
       #- service_info.state == 'running'
