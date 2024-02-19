@@ -37,7 +37,7 @@
       msg: "{{ service_info.state }}"
     when: 
       - service_info is defined
-      - service_info.state == 'running'
+      #- service_info.state == 'running'
 
   # - name: Stoppe Dienste, die existieren und laufen
   #   ansible.windows.win_service:
