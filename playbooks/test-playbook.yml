@@ -1,14 +1,26 @@
 ---
-- name: finde server auf vcenter
+- name: Patch Windows Host
   hosts: "{{ target_hosts }}"
   become: false
-  gather_facts: false
+  gather_facts: true
+
+  vars_prompt:
+  - name: ansible_user 
+    prompt: "Admin (bsp. adminjs@gutingia.local)"
+    private: false
+  - name: ansible_password
+    prompt: "Passwort"
+    private: true
   
   vars:
     vcenter_hostname: vcenter1.gutingia.local
     datacenter_name: myLife
-  
+
   tasks:
+  - name: Set groupname
+    set_fact:
+      groupe_name: "{{ target_hosts.split('_')[1] }}"
+
   - name: Versuche, Informationen über die VM zu erhalten
     community.vmware.vmware_guest_info:
       hostname: "{{ vcenter_hostname }}"
@@ -19,9 +31,14 @@
       folder: "/{{ datacenter_name }}/vm/"
       name: "{{ inventory_hostname }}"
     register: vm_info
-    ignore_errors: yes
     delegate_to: localhost
+    ignore_errors: yes
 
-  - name: test 
+  - name:
     debug:
-      msg: "{{ vm_info.failed }}"
+      msg: "{{ vm_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+
+  - name: Mache etwas, wenn die VM existiert
+    debug:
+      msg: "VM {{ inventory_hostname }} existiert."
+    when: vm_info.instance is defined
