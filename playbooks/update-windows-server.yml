@@ -34,6 +34,10 @@
     delegate_to: localhost
     ignore_errors: yes
 
+  - name:
+    debug:
+      msg: "{{ vm_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+
   - name: Erstelle Snapshots für jede VM
     community.vmware.vmware_guest_snapshot:
       hostname: "{{ vcenter_hostname }}"
