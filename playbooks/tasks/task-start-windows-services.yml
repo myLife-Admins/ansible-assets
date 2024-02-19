@@ -1,0 +1,7 @@
+- name: Starte Dienste, die existieren
+  ansible.windows.win_service:
+    name: "{{ item.item }}"
+    state: started
+  loop: "{{ service_info.results }}"
+  when: 
+    - item.exists

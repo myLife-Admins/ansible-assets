@@ -11,46 +11,13 @@
   - name: ansible_password
     prompt: "Passwort"
     private: true
-  
-  vars:
-    vcenter_hostname: vcenter1.gutingia.local
-    datacenter_name: myLife
 
   tasks:
-  - name: Get service status (Windows)
-    ansible.windows.win_service_info:
-      name: "{{ item }}"
-    register: service_info
-    loop:
-      - Spooler
-      - CogonCalculationService
-      - CogonCommonService
-      - CogonCommunicationService
-      - CogonMonitoringProcess
-      - CogonPathMonitoringService
-      - CogonReportingService
-      - CogonServiceManager
-      - CogonShadowAccountingService
+  - include_tasks: tasks/task-get-windows-services.yml
+    ignore_errors: yes
+  
+  - include_tasks: tasks/task-stop-windows-services.yml
+    ignore_errors: yes
 
-  - name: msg
-    debug:
-      msg: "{{ item.services }}"
-    loop: "{{ service_info.results }}"
-    when: 
-      - item.exists
-
-  - name: Stoppe Dienste, die existieren
-    ansible.windows.win_service:
-      name: "{{ item.item }}"
-      state: stopped
-    loop: "{{ service_info.results }}"
-    when: 
-      - item.exists
-
-  - name: Starte Dienste, die existieren
-    ansible.windows.win_service:
-      name: "{{ item.item }}"
-      state: started
-    loop: "{{ service_info.results }}"
-    when: 
-      - item.exists
+  - include_tasks: tasks/task-start-windows-services.yml
+    ignore_errors: yes
