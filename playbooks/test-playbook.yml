@@ -34,7 +34,9 @@
 
   - name: msg
     debug:
-      msg: "{{ service_info }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+      msg: |
+        ############################### {{ inventory_hostname }} ###############################
+        "{{ service_info }}"
     when: service_info is defined
 
   # - name: Stoppe Dienste, die existieren und laufen
