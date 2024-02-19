@@ -34,11 +34,11 @@
 
   - name: msg
     debug:
-      msg: "{{ item }}"
+      msg: "{{ item.services.state }}"
     loop: "{{ service_info.results }}"
     when: 
       - item.exists
-      #- service_info.state == 'running'
+      #- item.state == 'running'
 
   # - name: Stoppe Dienste, die existieren und laufen
   #   ansible.windows.win_service:
