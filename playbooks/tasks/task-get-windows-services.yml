@@ -12,3 +12,4 @@
     - CogonReportingService
     - CogonServiceManager
     - CogonShadowAccountingService
+    - glpi-agent
