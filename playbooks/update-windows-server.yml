@@ -75,6 +75,12 @@
     register: update_result
     ignore_errors: yes
 
+  - include_tasks: tasks/task-get-windows-services.yml
+    ignore_errors: yes
+  
+  - include_tasks: tasks/task-stop-windows-services.yml
+    ignore_errors: yes
+
   - name: Install all critical and security updates
     ansible.windows.win_updates:
       category_names:
@@ -143,6 +149,9 @@
   - name: Setze Fakt für freien Speicherplatz in GB
     set_fact:
       disk_space_gb: "{{ disk_space.output }}"
+    ignore_errors: yes
+
+  - include_tasks: tasks/task-start-windows-services.yml
     ignore_errors: yes
 
   - include_tasks: tasks/task-write-patchlog-windows.yml
