@@ -42,3 +42,24 @@
     debug:
       msg: "VM {{ inventory_hostname }} existiert."
     when: vm_info.instance is defined
+
+
+  - name: Erstelle Snapshots für jede VM
+    community.vmware.vmware_guest_snapshot:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      validate_certs: no
+      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
+      folder: "/{{ datacenter_name }}/vm/"
+      name: "{{ inventory_hostname }}"
+      state: present
+      memory_dump: yes
+      snapshot_name: "Windows_Update-{{ ansible_date_time.date }}"
+      description: >
+        "Dieser Snapshot wurde automatisch von Ansible am {{ ansible_date_time.date }} um {{ ansible_date_time.time }}
+        vor der Durchführung von Systemupdates generiert. Dies dient der Sicherung des aktuellen Systemzustands,
+        um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
+    throttle: 2
+    delegate_to: localhost
+    when: vm_info.instance is defined
