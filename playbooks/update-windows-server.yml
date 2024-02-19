@@ -4,13 +4,13 @@
   become: false
   gather_facts: true
 
-  # vars_prompt:
-  # - name: ansible_user 
-  #   prompt: "Admin (bsp. adminjs)"
-  #   private: false
-  # - name: ansible_password
-  #   prompt: "Passwort"
-  #   private: true
+  vars_prompt:
+  - name: ansible_user 
+    prompt: "Admin (bsp. adminjs@gutingia.local)"
+    private: false
+  - name: ansible_password
+    prompt: "Passwort"
+    private: true
   
   vars:
     vcenter_hostname: vcenter1.gutingia.local
@@ -20,6 +20,18 @@
   - name: Set groupname
     set_fact:
       groupe_name: "{{ target_hosts.split('_')[1] }}"
+
+  - name: Versuche, Informationen über die VM zu erhalten
+    community.vmware.vmware_guest_info:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      validate_certs: no
+      datacenter: "{{ datacenter_name }}"
+      folder: "/{{ datacenter_name }}/vm/"
+      name: "{{ inventory_hostname }}"
+    register: vm_info
+    ignore_errors: yes
 
   - name: Erstelle Snapshots für jede VM
     community.vmware.vmware_guest_snapshot:
@@ -39,6 +51,7 @@
         um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
     throttle: 2
     delegate_to: localhost
+    when: vm_info.guest_info is defined
 
   - name: Get current year and month
     set_fact:
