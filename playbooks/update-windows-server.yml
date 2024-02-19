@@ -56,7 +56,7 @@
         um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
     throttle: 2
     delegate_to: localhost
-    when: vm_info.guest_info is defined
+    when: vm_info[inventory_hostname].instance is defined
 
   - name: Get current year and month
     set_fact:
