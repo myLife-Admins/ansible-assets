@@ -20,6 +20,11 @@
   - name: Set groupname
     set_fact:
       groupe_name: "{{ target_hosts.split('_')[1] }}"
+  
+  - name: No Groupname found set name
+    set_fact:
+      groupe_name: "{{ target_hosts }}"
+    when: "{{ groupe_name }} != null"
 
   - name: Versuche, Informationen über die VM zu erhalten
     community.vmware.vmware_guest_info:
