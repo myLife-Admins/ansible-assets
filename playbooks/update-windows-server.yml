@@ -18,14 +18,13 @@
     datacenter_name: myLife
 
   tasks:
-  - name: Set groupname
+  - name: Set groupname if possible
     set_fact:
-      groupe_name: "{{ target_hosts.split('_')[1] }}"
+      groupe_name: "{{ (target_hosts.split('_')[1] if '_' in target_hosts else inventory_hostname) }}"
 
-  - name: No Groupname found set name
-    set_fact:
-      groupe_name: "{{ target_hosts }}"
-    when: "{{ groupe_name }} != null"
+  - name: Debug group name
+    debug:
+      msg: "The group name is {{ groupe_name }}"
 
   - name: Versuche, Informationen über die VM zu erhalten
     community.vmware.vmware_guest_info:
