@@ -1,9 +1,9 @@
 ---
 - name: Patch Windows Host
   hosts: "{{ target_hosts }}"
-  strategy: free
   become: false
   gather_facts: true
+  strategy: free
 
   vars_prompt:
   - name: ansible_user

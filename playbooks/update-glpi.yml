@@ -1,7 +1,6 @@
 - name: Update GLPI behind web proxy
   hosts: glpi-01.gutingia.local
   gather_facts: false
-  strategy: free
   become: true
 
   vars_prompt:

@@ -4,6 +4,7 @@
   hosts: localhost
   become: yes
   gather_facts: true
+  strategy: free
   
   tasks:
     - include_tasks: tasks/linux/write-log.yml
