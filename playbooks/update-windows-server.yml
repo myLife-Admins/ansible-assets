@@ -6,13 +6,13 @@
   gather_facts: true
 
   vars_prompt:
-  - name: ansible_user 
+  - name: ansible_user
     prompt: "Admin (bsp. adminjs@gutingia.local)"
     private: false
   - name: ansible_password
     prompt: "Passwort"
     private: true
-  
+
   vars:
     vcenter_hostname: vcenter1.gutingia.local
     datacenter_name: myLife
@@ -21,7 +21,7 @@
   - name: Set groupname
     set_fact:
       groupe_name: "{{ target_hosts.split('_')[1] }}"
-  
+
   - name: No Groupname found set name
     set_fact:
       groupe_name: "{{ target_hosts }}"
@@ -103,7 +103,7 @@
       state: installed
     register: update_result
     ignore_errors: yes
-  
+
   - name: Get reboot started time
     shell: "date +%Y-%m-%d_%H:%M:%S"
     register: reboot_start
@@ -120,7 +120,7 @@
     win_reboot:
     when: update_result.reboot_required
     ignore_errors: yes
-  
+
   - name: Get windows version after
     ansible.windows.win_shell: |
       (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
@@ -144,7 +144,7 @@
     register: reboot_end
     delegate_to: localhost
     ignore_errors: yes
-    
+
   - name: Erhalte den freien Speicherplatz auf dem C-Laufwerk
     ansible.windows.win_powershell:
       script: |
