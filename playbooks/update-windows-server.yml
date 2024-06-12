@@ -18,13 +18,11 @@
     datacenter_name: myLife
 
   tasks:
+  - include_tasks: tasks/task-check-wincreds.yml
+
   - name: Set groupname if possible
     set_fact:
       groupe_name: "{{ (target_hosts.split('_')[1] if '_' in target_hosts else inventory_hostname) }}"
-
-  - name: Debug group name
-    debug:
-      msg: "The group name is {{ groupe_name }}"
 
   - name: Versuche, Informationen über die VM zu erhalten
     community.vmware.vmware_guest_info:
