@@ -17,8 +17,8 @@
     vcenter_hostname: vcenter1.gutingia.local
     datacenter_name: myLife
 
-  tasks:
-  - include_tasks: tasks/task-check-wincreds.yml
+  # tasks:
+  # - include_tasks: tasks/task-check-wincreds.yml
 
   - name: Set groupname if possible
     set_fact:
