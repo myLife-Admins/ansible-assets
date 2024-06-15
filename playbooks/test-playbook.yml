@@ -3,21 +3,19 @@
   hosts: "{{ target_hosts }}"
   become: false
   gather_facts: true
+  strategy: free
 
   vars_prompt:
-  - name: ansible_user 
+  - name: ansible_user
     prompt: "Admin (bsp. adminjs@gutingia.local)"
     private: false
   - name: ansible_password
     prompt: "Passwort"
     private: true
 
-  tasks:
-  - include_tasks: tasks/task-get-windows-services.yml
-    ignore_errors: yes
-  
-  - include_tasks: tasks/task-stop-windows-services.yml
-    ignore_errors: yes
+  vars:
+    vcenter_hostname: vcenter1.gutingia.local
+    datacenter_name: myLife
 
-  - include_tasks: tasks/task-start-windows-services.yml
-    ignore_errors: yes
+  tasks:
+    - include_tasks: tasks/task-check-wincreds.yml

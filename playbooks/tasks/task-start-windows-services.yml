@@ -5,3 +5,4 @@
   loop: "{{ service_info.results }}"
   when: 
     - item.exists
+  ignore_errors: yes
