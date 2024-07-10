@@ -160,6 +160,9 @@
         ToDo: Festplattenspeicher {{ disk_space.output | float }} GB = OK
         {% endif %}
 
+    debug:
+      msg: "{{ disk_space_gb }}" # not required. The customized message that is printed. If omitted, prints a generic message.
+
   - include_tasks: tasks/task-start-windows-services.yml
     ignore_errors: yes
 
