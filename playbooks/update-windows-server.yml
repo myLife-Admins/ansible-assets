@@ -158,6 +158,9 @@
   - include_tasks: tasks/task-start-windows-services.yml
     ignore_errors: yes
 
+  - include_tasks: tasks/test-get-wineventlogs.yml
+    ignore_errors: yes
+
   - include_tasks: tasks/task-write-patchlog-windows.yml
     ignore_errors: yes
 
