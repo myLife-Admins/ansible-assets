@@ -154,7 +154,7 @@
     set_fact:
         # Convert German number format to standard float
         disk_space_gb: "{{ disk_space.output[0] | replace(',', '.') | float }}"
-        windows_diskspace_check: >
+        windows_diskspace_check: >-
           {% if (disk_space.output[0] | replace(',', '.') | float) < 16 %}
           ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = ERROR
           {% else %}
