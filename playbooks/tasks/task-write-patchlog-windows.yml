@@ -11,14 +11,14 @@
     state: touch
   delegate_to: localhost
 
-- name: Format and display event logs
-  debug:
-    msg: |
-      {% for log in event_logs.stdout_lines %}
-      Source: {{ log.Source }}
-      Message: {{ log.Message }}
+# - name: Format and display event logs
+#   debug:
+#     msg: |
+#       {% for log in event_logs.stdout_lines %}
+#       Source: {{ log.Source }}
+#       Message: {{ log.Message }}
       
-      {% endfor %}
+#       {% endfor %}
 
 - name: Event logs
   debug:
