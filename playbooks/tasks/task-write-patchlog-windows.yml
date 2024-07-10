@@ -11,18 +11,18 @@
     state: touch
   delegate_to: localhost
 
-# - name: Format and display event logs
-#   debug:
-#     msg: |
-#       {% for log in event_logs.stdout_lines %}
-#       Source: {{ log.Source }}
-#       Message: {{ log.Message }}
-      
-#       {% endfor %}
+- name: Parse and display event logs
+  set_fact:
+    parsed_logs: "{{ event_logs.stdout | from_json }}"
 
-- name: Event logs
+- name: Display formatted event logs
   debug:
-    msg: "{{ event_logs.stdout_lines }}"
+    msg: |
+      {% for log in parsed_logs %}
+      Source: {{ log.Source }}
+      Message: {{ log.Message }}
+      
+      {% endfor %}
 
 - name: Write log
   ansible.builtin.lineinfile:
