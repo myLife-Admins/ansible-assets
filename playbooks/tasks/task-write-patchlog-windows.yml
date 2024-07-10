@@ -27,7 +27,7 @@
 - name: Write log
   ansible.builtin.lineinfile:
     path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/Updates-{{ groupe_name }}-Generated.txt
-    line: |
+    line: >-
       ---------------------------------------------------------------------------------------------------------------------------
 
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
