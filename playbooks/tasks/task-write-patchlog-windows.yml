@@ -41,6 +41,11 @@
         {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
+        {% for log in parsed_logs %}
+            Source: {{ log.Source }}
+            Message: {{ log.Message }}
+
+        {% endfor %}
         ToDo: Abmelden = 
         
   delegate_to: localhost

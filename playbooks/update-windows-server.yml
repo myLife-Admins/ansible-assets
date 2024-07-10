@@ -161,14 +161,6 @@
           ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = OK
           {% endif %}
 
-  - name: Debug disk_space.output
-    debug:
-      var: disk_space.output
-
-  - name: Debug Disk Space GB
-    debug:
-      msg: "{{ disk_space_gb }}" # not required. The customized message that is printed. If omitted, prints a generic message.
-
   - include_tasks: tasks/task-start-windows-services.yml
     ignore_errors: yes
 
