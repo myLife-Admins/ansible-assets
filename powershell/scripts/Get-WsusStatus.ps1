@@ -18,4 +18,3 @@ foreach ($computer in $computers) {
 }
 
 $result | ConvertTo-Json
-$result
