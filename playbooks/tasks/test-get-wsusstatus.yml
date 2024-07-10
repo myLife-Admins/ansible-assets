@@ -1,5 +1,14 @@
 - name: Get WSUS status
   hosts: windows_manage
+  
+  vars_prompt:
+- name: ansible_user
+  prompt: "Admin (bsp. adminjs@gutingia.local)"
+  private: false
+- name: ansible_password
+  prompt: "Passwort"
+  private: true
+  
   tasks:
     - name: Copy PowerShell script to the server
       win_copy:
