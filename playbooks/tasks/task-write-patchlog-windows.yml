@@ -24,7 +24,7 @@
         {% endfor %}
         
         Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
-        ToDo: Festplattenspeicher {{ disk_space_gb }} GB =
+        {{ windows_diskspace_check }}
         {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
