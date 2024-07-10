@@ -15,19 +15,10 @@
   set_fact:
     parsed_logs: "{{ event_logs.stdout | from_json }}"
 
-- name: Display formatted event logs
-  debug:
-    msg: |
-      {% for log in parsed_logs %}
-      Source: {{ log.Source }}
-      Message: {{ log.Message }}
-
-      {% endfor %}
-
 - name: Write log
   ansible.builtin.lineinfile:
     path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/Updates-{{ groupe_name }}-Generated.txt
-    line: >-
+    line: |
       ---------------------------------------------------------------------------------------------------------------------------
 
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
@@ -37,13 +28,13 @@
         {% endfor %}
         
         Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
-       {{ windows_diskspace_check }}
+        {{ windows_diskspace_check }}
         {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
-        {% for log in parsed_logs %}
-        Source: {{ log.Source }} 
-        Message: {{ log.Message }}
+        {% for log in event_logs.stdout_lines %}
+        {{ log }} 
+
         {% endfor %}
         ToDo: Abmelden = 
         
