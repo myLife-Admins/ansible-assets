@@ -29,7 +29,9 @@
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
         {% for log in event_logs.stdout_lines %}
-          {{ log }}
+            Source: {{ log.Source }}
+            Message: {{ log.Message }}
+            
         {% endfor %}
         ToDo: Abmelden = 
         
