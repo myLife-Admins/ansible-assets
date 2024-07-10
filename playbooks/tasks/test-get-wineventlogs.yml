@@ -1,3 +1,8 @@
+- name: Ensure C:/Temp directory exists
+  ansible.builtin.win_file:
+    path: C:/Temp
+    state: directory
+
 - name: Copy PowerShell script to the server
   win_copy:
     src: /opt/ansible-assets/powershell/scripts/Get-EventLogs.ps1
