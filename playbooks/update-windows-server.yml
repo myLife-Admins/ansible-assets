@@ -152,7 +152,7 @@
 
   - name: Set disk space check result
     set_fact:
-      disk_space_gb: "{{ disk_space.stdout | float }}"
+      disk_space_gb: "{{ disk_space.output | float }}"
       windows_diskspace_check: >
         {% if disk_space_gb < 16 %}
         ToDo: Festplattenspeicher {{ disk_space_gb }} GB = ERROR
