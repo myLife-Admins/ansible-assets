@@ -152,13 +152,14 @@
 
   - name: Set disk space check result
     set_fact:
-      disk_space_gb: "{{ disk_space.output | float }}"
-      windows_diskspace_check: >
-        {% if (disk_space.output | float) < 16 %}
-        ToDo: Festplattenspeicher {{ disk_space.output | float }} GB = ERROR
-        {% else %}
-        ToDo: Festplattenspeicher {{ disk_space.output | float }} GB = OK
-        {% endif %}
+        # Convert German number format to standard float
+        disk_space_gb: "{{ disk_space.output[0] | replace(',', '.') | float }}"
+        windows_diskspace_check: >
+          {% if (disk_space.output[0] | replace(',', '.') | float) < 16 %}
+          ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = ERROR
+          {% else %}
+          ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = OK
+          {% endif %}
 
   - name: Debug disk_space.output
     debug:
