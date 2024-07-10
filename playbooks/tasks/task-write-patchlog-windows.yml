@@ -11,6 +11,19 @@
     state: touch
   delegate_to: localhost
 
+- name: Format and display event logs
+  debug:
+    msg: |
+      {% for log in event_logs.stdout_lines %}
+      Source: {{ log.Source }}
+      Message: {{ log.Message }}
+      
+      {% endfor %}
+
+- name: Event logs
+  debug:
+    msg: event_logs.stdout_lines
+
 - name: Write log
   ansible.builtin.lineinfile:
     path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/Updates-{{ groupe_name }}-Generated.txt
@@ -28,11 +41,6 @@
         {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
-        {% for log in event_logs.stdout_lines %}
-            Source: {{ log.Source }}
-            Message: {{ log.Message }}
-            
-        {% endfor %}
         ToDo: Abmelden = 
         
   delegate_to: localhost
