@@ -1,8 +1,13 @@
+- name: Ensure log directory exists
+  ansible.builtin.file:
+    path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/
+    state: directory
+
 - name: Write Windows patch log
   ansible.builtin.shell: |
     cat <<EOF >> /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/Updates-{{ groupe_name }}-Generated.txt
     ###########################################################################################################################
-
+    
     {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
       Updates({{ update_result.found_update_count }}):
       {% for update in update_result.updates %}
@@ -21,11 +26,6 @@
   delegate_to: localhost
   args:
     executable: /bin/bash
-
-# - name: Ensure log directory exists
-#   ansible.builtin.file:
-#     path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/
-#     state: directory
 
 # - name: Write Windows patch log
 #   ansible.builtin.lineinfile:
