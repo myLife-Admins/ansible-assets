@@ -150,10 +150,6 @@
     register: disk_space
     ignore_errors: yes
 
-  - name: Debug disk space variable
-    debug:
-      var: disk_space
-
   - name: Set disk space check result
     set_fact:
       disk_space_gb: "{{ disk_space.output | float }}"
