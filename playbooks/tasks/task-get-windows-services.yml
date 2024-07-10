@@ -13,3 +13,6 @@
     - CogonServiceManager
     - CogonShadowAccountingService
     - glpi-agent
+    - winlogbeat
+    - metricbeat
+    - packetbeat
