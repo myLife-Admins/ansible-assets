@@ -22,7 +22,7 @@
 
 - name: Event logs
   debug:
-    msg: event_logs.stdout_lines
+    msg: "{{ event_logs.stdout_lines }}"
 
 - name: Write log
   ansible.builtin.lineinfile:
