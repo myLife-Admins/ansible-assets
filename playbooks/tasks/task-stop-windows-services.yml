@@ -1,4 +1,4 @@
-- name: Stoppe Dienste, die existieren
+- name: Stop services
   ansible.windows.win_service:
     name: "{{ item.item }}"
     state: stopped

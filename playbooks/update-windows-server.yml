@@ -20,11 +20,11 @@
   tasks:
   # - include_tasks: tasks/task-check-wincreds.yml
 
-  - name: Set groupname if possible
+  - name: Set groupname
     set_fact:
       groupe_name: "{{ (target_hosts.split('_')[1] if '_' in target_hosts else inventory_hostname) }}"
 
-  - name: Versuche, Informationen über die VM zu erhalten
+  - name: Gather VM details
     community.vmware.vmware_guest_info:
       hostname: "{{ vcenter_hostname }}"
       username: "{{ ansible_user }}"
@@ -37,7 +37,7 @@
     delegate_to: localhost
     ignore_errors: yes
 
-  - name: Erstelle Snapshots für jede VM
+  - name: Create Snapshots
     community.vmware.vmware_guest_snapshot:
       hostname: "{{ vcenter_hostname }}"
       username: "{{ ansible_user }}"
@@ -72,7 +72,7 @@
     delegate_to: localhost
     ignore_errors: yes
 
-  - name: Suche nach verfügbaren Updates
+  - name: Search for windows updates
     ansible.windows.win_updates:
       state: searched
     register: update_result
@@ -84,7 +84,7 @@
   - include_tasks: tasks/task-stop-windows-services.yml
     ignore_errors: yes
 
-  - name: Install all critical and security updates
+  - name: Install updates
     ansible.windows.win_updates:
       category_names:
       - CriticalUpdates
@@ -113,8 +113,9 @@
     register: initial_version
     ignore_errors: yes
 
-  - name: reboot host if required
+  - name: Reboot host if required
     win_reboot:
+      reboot_timeout: 1800
     when: update_result.reboot_required
     ignore_errors: yes
 
@@ -142,14 +143,14 @@
     delegate_to: localhost
     ignore_errors: yes
 
-  - name: Erhalte den freien Speicherplatz auf dem C-Laufwerk
+  - name: Get free diskspace C:\
     ansible.windows.win_powershell:
       script: |
         "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
     register: disk_space
     ignore_errors: yes
 
-  - name: Setze Fakt für freien Speicherplatz in GB
+  - name: Set free diskspace
     set_fact:
       disk_space_gb: "{{ disk_space.output }}"
     ignore_errors: yes

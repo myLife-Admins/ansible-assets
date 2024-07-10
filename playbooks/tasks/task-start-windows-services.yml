@@ -1,4 +1,4 @@
-- name: Starte Dienste, die existieren
+- name: Start services
   ansible.windows.win_service:
     name: "{{ item.item }}"
     state: started
