@@ -23,20 +23,19 @@
 
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
         Updates({{ update_result.found_update_count }}):
-          {% for update in update_result.updates %}
+        {% for update in update_result.updates %}
           - {{ update_result.updates[update].title }}
-          {% endfor %}
+        {% endfor %}
         
         Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
         {{ windows_diskspace_check }}
         {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
-          {% for log in parsed_logs %}
+        {% for log in parsed_logs %}
           Source: {{ log.Source }}
           Message: {{ log.Message }}
-
-          {% endfor %}
+          
+        {% endfor %}
         ToDo: Abmelden = 
-        
   delegate_to: localhost
