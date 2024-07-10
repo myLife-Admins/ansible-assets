@@ -15,7 +15,7 @@
   ansible.builtin.lineinfile:
     path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/Updates-{{ groupe_name }}-Generated.txt
     line: |
-      ###########################################################################################################################
+      ---------------------------------------------------------------------------------------------------------------------------
 
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
         Updates({{ update_result.found_update_count }}):
@@ -30,6 +30,7 @@
         ToDo: Logs > Anwendung = 
         ToDo: Logs > System = 
         ToDo: Abmelden = 
+        
   delegate_to: localhost
 
 # - name: Write Windows patch log
