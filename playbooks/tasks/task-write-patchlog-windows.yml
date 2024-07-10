@@ -13,7 +13,7 @@
 
 - name: Parse the JSON output
   set_fact:
-    parsed_logs: "{{ event_logs | from_json }}"
+    parsed_logs: "{{ event_logs.stdout_lines | from_json }}"
 
 - name: Display formatted event logs
   debug:
