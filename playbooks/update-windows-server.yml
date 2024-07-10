@@ -149,6 +149,10 @@
         "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
     register: disk_space
     ignore_errors: yes
+    
+  - name: Debug disk space variable
+    debug:
+      var: disk_space
 
   - name: Set disk space check result
     set_fact:
