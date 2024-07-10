@@ -1,5 +1,5 @@
 - name: Get WSUS status
-  hosts: windows_manage
+  hosts: wsus2
   
   vars_prompt:
   - name: ansible_user
