@@ -13,29 +13,30 @@
 
 - name: Parse the JSON output
   set_fact:
-    parsed_logs: "{{ event_logs.stdout | from_json }}"
+    parsed_logs: "{{ event_logs.stdout_lines | join('') | from_json }}"
 
 - name: Write log
   ansible.builtin.lineinfile:
     path: /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/@work/Updates-{{ groupe_name }}-Generated.txt
-    line: |
+    line: >
       ---------------------------------------------------------------------------------------------------------------------------
 
       {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
-        Updates({{ update_result.found_update_count }}):
-        {% for update in update_result.updates %}
-        - {{ update_result.updates[update].title }}
-        {% endfor %}
+      Updates({{ update_result.found_update_count }}):
+      {% for update in update_result.updates %}
+      - {{ update_result.updates[update].title }}
+      {% endfor %}
         
-        Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
-        {{ windows_diskspace_check }}
-        {{ windows_verson_check }}
-        ToDo: WSUS Status prüfen =
-        ToDo: Logs > Anwendung und System:
-        {% for log in event_logs.stdout_lines %}
-        {{ log }} 
+      Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
+      {{ windows_diskspace_check }}
+      {{ windows_verson_check }}
+      ToDo: WSUS Status prüfen =
+      ToDo: Logs > Anwendung und System:
+      {% for log in parsed_logs %}
+      Source: {{ log.Source }}
+      Message: {{ log.Message }}
 
-        {% endfor %}
-        ToDo: Abmelden = 
+      {% endfor %}
+      ToDo: Abmelden = 
         
   delegate_to: localhost
