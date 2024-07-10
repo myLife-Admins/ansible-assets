@@ -160,6 +160,7 @@
         ToDo: Festplattenspeicher {{ disk_space.output | float }} GB = OK
         {% endif %}
 
+  - name: Debug Disk Space
     debug:
       msg: "{{ disk_space_gb }}" # not required. The customized message that is printed. If omitted, prints a generic message.
 
