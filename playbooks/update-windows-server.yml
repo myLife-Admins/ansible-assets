@@ -150,21 +150,18 @@
     register: disk_space
     ignore_errors: yes
 
+  - name: Debug disk space variable
+    debug:
+      var: disk_space
+
   - name: Set disk space check result
     set_fact:
       disk_space_gb: "{{ disk_space.output | float }}"
-
-  - name: Debug disk space variable
-    debug:
-      var: disk_space_gb
-
-  - name: Set disk space check result
-    set_fact:
       windows_diskspace_check: >
-        {% if disk_space_gb < 16 %}
-        ToDo: Festplattenspeicher {{ disk_space_gb }} GB = ERROR
+        {% if (disk_space.output | float) < 16 %}
+        ToDo: Festplattenspeicher {{ disk_space.output | float }} GB = ERROR
         {% else %}
-        ToDo: Festplattenspeicher {{ disk_space_gb }} GB = OK
+        ToDo: Festplattenspeicher {{ disk_space.output | float }} GB = OK
         {% endif %}
 
   - include_tasks: tasks/task-start-windows-services.yml
