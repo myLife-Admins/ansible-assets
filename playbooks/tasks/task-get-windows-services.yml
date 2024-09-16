@@ -16,3 +16,10 @@
     - winlogbeat
     - metricbeat
     - packetbeat
+    - SophosFS
+    - SophosHealth
+    - SophosLiveQueryService
+    - McsAgent
+    - McsClient
+    - SophosNtpService
+    - SSPService
