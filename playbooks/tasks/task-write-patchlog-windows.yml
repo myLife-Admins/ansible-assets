@@ -11,9 +11,9 @@
     state: touch
   delegate_to: localhost
 
-- name: Parse the JSON output
-  set_fact:
-    parsed_logs: "{{ event_logs.stdout_lines | join('') | from_json }}"
+# - name: Parse the JSON output
+#   set_fact:
+#     parsed_logs: "{{ event_logs.stdout_lines | join('') | from_json }}"
 
 - name: Write log
   ansible.builtin.lineinfile:
@@ -32,8 +32,5 @@
         {{ windows_verson_check }}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
-        {% for log in event_logs.stdout_lines %}
-          {{ log }}
-        {% endfor %}
         ToDo: Abmelden = 
   delegate_to: localhost
