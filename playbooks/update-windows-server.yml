@@ -71,6 +71,10 @@
       state: directory
     delegate_to: localhost
     ignore_errors: yes
+  
+  - name: Clean Reboot
+    win_reboot:
+      reboot_timeout: 1800
 
   - name: Search for windows updates
     ansible.windows.win_updates:
@@ -162,6 +166,7 @@
           {% endif %}
 
   - include_tasks: tasks/task-start-windows-services.yml
+    when: not update_result.reboot_required
     ignore_errors: yes
 
 #  - include_tasks: tasks/test-get-wineventlogs.yml
