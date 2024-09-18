@@ -72,10 +72,6 @@
     delegate_to: localhost
     ignore_errors: yes
   
-  - name: Clean Reboot
-    win_reboot:
-      reboot_timeout: 1800
-
   - name: Search for windows updates
     ansible.windows.win_updates:
       state: searched
@@ -117,7 +113,7 @@
     register: initial_version
     ignore_errors: yes
 
-  - name: Reboot host if required
+  - name: Check if reboot is required
     win_reboot:
       reboot_timeout: 1800
     when: update_result.reboot_required
