@@ -13,7 +13,6 @@
     - CogonServiceManager
     - CogonShadowAccountingService
     - glpi-agent
-    - packetbeat
     - Sophos File Scanner Service
     - Sophos Health Service
     - Sophos Live Query
