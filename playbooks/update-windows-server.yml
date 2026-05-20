@@ -10,7 +10,15 @@
     prompt: "Admin (bsp. adminjs@gutingia.local)"
     private: false
   - name: ansible_password
-    prompt: "Passwort"
+    prompt: "{{ ansible_user }} Passwort"
+    private: true
+  
+  vars_prompt:
+  - name: vm_user
+    prompt: "Vcenter Admin (bsp. adminjs@vsphere.local)"
+    private: false
+  - name: vm_password
+    prompt: "{{ vm_user }} Passwort"
     private: true
 
   vars:
@@ -27,8 +35,8 @@
   - name: Gather VM details
     community.vmware.vmware_guest_info:
       hostname: "{{ vcenter_hostname }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
+      username: "{{ vm_user }}"
+      password: "{{ vm_password }}"
       validate_certs: no
       datacenter: "{{ datacenter_name }}"
       folder: "/{{ datacenter_name }}/vm/"
@@ -40,8 +48,8 @@
   - name: Create Snapshots
     community.vmware.vmware_guest_snapshot:
       hostname: "{{ vcenter_hostname }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
+      username: "{{ vm_user }}"
+      password: "{{ vm_password }}"
       validate_certs: no
       datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
       folder: "/{{ datacenter_name }}/vm/"
