@@ -10,7 +10,7 @@
     prompt: "Admin (bsp. adminjs@gutingia.local)"
     private: false
   - name: ansible_password
-    prompt: "{{ ansible_user }} Passwort"
+    prompt: "Passwort"
     private: true
   
   vars_prompt:
@@ -18,7 +18,7 @@
     prompt: "Vcenter Admin (bsp. adminjs@vsphere.local)"
     private: false
   - name: vm_password
-    prompt: "{{ vm_user }} Passwort"
+    prompt: "Passwort"
     private: true
 
   vars:
