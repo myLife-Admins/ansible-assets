@@ -12,8 +12,6 @@
   - name: ansible_password
     prompt: "Passwort"
     private: true
-  
-  vars_prompt:
   - name: vm_user
     prompt: "Vcenter Admin (bsp. adminjs@vsphere.local)"
     private: false
