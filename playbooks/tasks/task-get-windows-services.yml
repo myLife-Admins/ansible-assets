@@ -13,9 +13,3 @@
     - CogonServiceManager
     - CogonShadowAccountingService
     - glpi-agent
-    - Sophos File Scanner Service
-    - Sophos Health Service
-    - Sophos Live Query
-    - Sophos MCS Agent
-    - Sophos MCS Client
-    - Sophos System Protection Service
