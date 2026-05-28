@@ -21,16 +21,19 @@
     line: |
       ---------------------------------------------------------------------------------------------------------------------------
 
-      {{ inventory_hostname }} ({{ ansible_facts.os_name }}):
-        Updates({{ update_result.found_update_count }}):
-        {% for update in update_result.updates %}
+      {{ inventory_hostname }} ({{ ansible_facts.os_name | default('unbekannt') }}):
+        Updates({{ update_result.found_update_count | default(0) }}):
+        {% for update in update_result.updates | default({}) %}
           - {{ update_result.updates[update].title }}
         {% endfor %}
-        
-        Done: Neustart von {{ reboot_start.stdout }} bis {{ reboot_end.stdout }} = OK
-        {{ windows_diskspace_check }}
-        {{ windows_verson_check }}
+
+        Done: Neustart von {{ reboot_start.stdout | default('unbekannt') }} bis {{ reboot_end.stdout | default('unbekannt') }} = {{ 'FEHLER' if patch_error != '' else 'OK' }}
+        {{ windows_diskspace_check | default('ToDo: Festplattenspeicher = (nicht ermittelt)') }}
+        {{ windows_verson_check | default('ToDo: Versionsupdate = (nicht ermittelt)') }}
+        {% if patch_error != '' %}
+        {{ patch_error }}
+        {% endif %}
         ToDo: WSUS Status prüfen =
         ToDo: Logs > Anwendung und System:
-        ToDo: Abmelden = 
+        ToDo: Abmelden =
   delegate_to: localhost

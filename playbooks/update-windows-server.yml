@@ -30,46 +30,12 @@
     set_fact:
       groupe_name: "{{ (target_hosts.split('_')[1] if '_' in target_hosts else inventory_hostname) }}"
 
-  - name: Gather VM details
-    community.vmware.vmware_guest_info:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ vm_user }}"
-      password: "{{ vm_password }}"
-      validate_certs: no
-      datacenter: "{{ datacenter_name }}"
-      folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ inventory_hostname }}"
-    register: vm_info
-    delegate_to: localhost
-    ignore_errors: yes
-
-  - name: Create Snapshots
-    community.vmware.vmware_guest_snapshot:
-      hostname: "{{ vcenter_hostname }}"
-      username: "{{ vm_user }}"
-      password: "{{ vm_password }}"
-      validate_certs: no
-      datacenter: "{{ datacenter_name }}"  # Ersetze durch deinen Datacenter-Namen
-      folder: "/{{ datacenter_name }}/vm/"
-      name: "{{ inventory_hostname }}"
-      state: present
-      memory_dump: yes
-      snapshot_name: "Windows_Update-{{ ansible_date_time.date }}"
-      description: >
-        "Dieser Snapshot wurde automatisch von Ansible am {{ ansible_date_time.date }} um {{ ansible_date_time.time }}
-        vor der Durchführung von Systemupdates generiert. Dies dient der Sicherung des aktuellen Systemzustands,
-        um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
-    throttle: 2
-    delegate_to: localhost
-    when: vm_info.instance is defined
-
   - name: Get current year and month
     set_fact:
       current_year: "{{ ansible_date_time.year }}"
       current_month: "{{ '%02d'|format(ansible_date_time.month|int) }}"
       current_time: "{{ ansible_date_time.iso8601 }}"
     delegate_to: localhost
-    ignore_errors: yes
 
   - name: Create directories for current year and month
     file:
@@ -77,103 +43,196 @@
       state: directory
     delegate_to: localhost
     ignore_errors: yes
-  
-  - name: Search for windows updates
-    ansible.windows.win_updates:
-      state: searched
-    register: update_result
-    ignore_errors: yes
 
-  - include_tasks: tasks/task-get-windows-services.yml
-    ignore_errors: yes
-  
-  - include_tasks: tasks/task-stop-windows-services.yml
-    ignore_errors: yes
-
-  - name: Install updates
-    ansible.windows.win_updates:
-      category_names:
-      - CriticalUpdates
-      - SecurityUpdates
-      - UpdateRollups
-      - Updates
-      - FeaturePacks
-      - ServicePacks
-      - DefinitionUpdates
-      - Tools
-      - Guidance
-      - UpdateRollup
-      state: installed
-    register: update_result
-    ignore_errors: yes
-
-  - name: Get reboot started time
-    shell: "date +%Y-%m-%d_%H:%M:%S"
-    register: reboot_start
+  # Resume-State: Auf dem Controller wird pro Host eine Datei gespeichert,
+  # damit ein fehlgeschlagener Lauf (nach Fehlerbehebung) ohne erneuten
+  # Snapshot fortgesetzt werden kann. State wird bei Erfolg automatisch gelöscht.
+  - name: Check for resume state file
+    stat:
+      path: "/tmp/patch_resume_{{ inventory_hostname }}.txt"
+    register: resume_state_file
     delegate_to: localhost
-    ignore_errors: yes
 
-  - name: Get windows version before
-    ansible.windows.win_shell: |
-      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
-    register: initial_version
-    ignore_errors: yes
-
-  - name: Check if reboot is required
-    win_reboot:
-      reboot_timeout: 1800
-    when: update_result.reboot_required
-    ignore_errors: yes
-
-  - name: Get windows version after
-    ansible.windows.win_shell: |
-      (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
-    register: patched_version
-    ignore_errors: yes
-
-  - name: Compare windows versions = OK
+  - name: Load resume state
     set_fact:
-      windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  OK"
-    when: initial_version.stdout_lines != patched_version.stdout_lines
-    ignore_errors: yes
-  
-  - name: Compare windows versions = FAILED
+      resume_from: "{{ lookup('file', '/tmp/patch_resume_' + inventory_hostname + '.txt') | trim }}"
+    when: resume_state_file.stat.exists
+
+  - name: Set initial state
     set_fact:
-      windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  FAILED!"
-    when: initial_version.stdout_lines == patched_version.stdout_lines
-    ignore_errors: yes
+      resume_from: "start"
+    when: not resume_state_file.stat.exists
 
-  - name: Get reboot finished time
-    shell: "date +%Y-%m-%d_%H:%M:%S"
-    register: reboot_end
-    delegate_to: localhost
-    ignore_errors: yes
-
-  - name: Get free diskspace C:\
-    ansible.windows.win_powershell:
-      script: |
-        "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
-    register: disk_space
-    ignore_errors: yes
-
-  - name: Set disk space check result
+  # Standardwerte damit das Log auch bei frühen Fehlern vollständig geschrieben werden kann
+  - name: Initialize defaults for log safety
     set_fact:
-        # Convert German number format to standard float
-        disk_space_gb: "{{ disk_space.output[0] | replace(',', '.') | float }}"
-        windows_diskspace_check: >-
-          {% if (disk_space.output[0] | replace(',', '.') | float) < 16 %}
-          ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = ERROR
-          {% else %}
-          ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = OK
-          {% endif %}
+      patch_error: ""
+      update_result:
+        found_update_count: 0
+        updates: {}
+        reboot_required: false
+      initial_version:
+        stdout_lines: ["unbekannt"]
+      patched_version:
+        stdout_lines: ["unbekannt"]
+      windows_verson_check: "ToDo: Versionsupdate = (nicht ermittelt)"
+      windows_diskspace_check: "ToDo: Festplattenspeicher = (nicht ermittelt)"
+      reboot_start:
+        stdout: "unbekannt"
+      reboot_end:
+        stdout: "unbekannt"
 
-  - include_tasks: tasks/task-start-windows-services.yml
-    when: not update_result.reboot_required
-    ignore_errors: yes
+  - block:
 
-#  - include_tasks: tasks/test-get-wineventlogs.yml
-#    ignore_errors: yes
+      - name: Gather VM details
+        community.vmware.vmware_guest_info:
+          hostname: "{{ vcenter_hostname }}"
+          username: "{{ vm_user }}"
+          password: "{{ vm_password }}"
+          validate_certs: no
+          datacenter: "{{ datacenter_name }}"
+          folder: "/{{ datacenter_name }}/vm/"
+          name: "{{ inventory_hostname }}"
+        register: vm_info
+        delegate_to: localhost
+        ignore_errors: yes
+        when: resume_from == 'start'
 
-  - include_tasks: tasks/task-write-patchlog-windows.yml
-    ignore_errors: yes
+      - name: Create Snapshots
+        community.vmware.vmware_guest_snapshot:
+          hostname: "{{ vcenter_hostname }}"
+          username: "{{ vm_user }}"
+          password: "{{ vm_password }}"
+          validate_certs: no
+          datacenter: "{{ datacenter_name }}"
+          folder: "/{{ datacenter_name }}/vm/"
+          name: "{{ inventory_hostname }}"
+          state: present
+          memory_dump: yes
+          snapshot_name: "Windows_Update-{{ ansible_date_time.date }}"
+          description: >
+            "Dieser Snapshot wurde automatisch von Ansible am {{ ansible_date_time.date }} um {{ ansible_date_time.time }}
+            vor der Durchführung von Systemupdates generiert. Dies dient der Sicherung des aktuellen Systemzustands,
+            um bei Bedarf eine Wiederherstellung auf diesen Punkt zu ermöglichen."
+        throttle: 2
+        delegate_to: localhost
+        ignore_errors: yes
+        when: resume_from == 'start' and vm_info.instance is defined
 
+      - name: Save resume checkpoint after snapshot
+        copy:
+          content: "snapshot_done"
+          dest: "/tmp/patch_resume_{{ inventory_hostname }}.txt"
+        delegate_to: localhost
+        when: resume_from == 'start'
+
+      - name: Search for windows updates
+        ansible.windows.win_updates:
+          state: searched
+        register: update_result
+        ignore_errors: yes
+
+      - include_tasks: tasks/task-get-windows-services.yml
+        ignore_errors: yes
+
+      - include_tasks: tasks/task-stop-windows-services.yml
+        ignore_errors: yes
+
+      - name: Get windows version before
+        ansible.windows.win_shell: |
+          (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
+        register: initial_version
+        ignore_errors: yes
+
+      - name: Get reboot started time
+        shell: "date +%Y-%m-%d_%H:%M:%S"
+        register: reboot_start
+        delegate_to: localhost
+
+      - name: Install updates
+        ansible.windows.win_updates:
+          category_names:
+          - CriticalUpdates
+          - SecurityUpdates
+          - UpdateRollups
+          - Updates
+          - FeaturePacks
+          - ServicePacks
+          - DefinitionUpdates
+          - Tools
+          - Guidance
+          - UpdateRollup
+          state: installed
+        register: update_result
+        ignore_errors: yes
+
+      - name: Check if reboot is required
+        win_reboot:
+          reboot_timeout: 1800
+        when: update_result.reboot_required
+        ignore_errors: yes
+
+      - name: Get windows version after
+        ansible.windows.win_shell: |
+          (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').CurrentBuild +'.'+ (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
+        register: patched_version
+        ignore_errors: yes
+
+      - name: Compare windows versions = OK
+        set_fact:
+          windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  OK"
+        when: initial_version.stdout_lines != patched_version.stdout_lines
+
+      - name: Compare windows versions = NO UPDATES
+        set_fact:
+          windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  KEIN UPDATE"
+        when:
+          - initial_version.stdout_lines == patched_version.stdout_lines
+          - update_result.found_update_count == 0
+
+      - name: Compare windows versions = FAILED
+        set_fact:
+          windows_verson_check: "ToDo: Versionsupdate von {{ initial_version.stdout_lines }} zu {{ patched_version.stdout_lines }} =  FAILED!"
+        when:
+          - initial_version.stdout_lines == patched_version.stdout_lines
+          - update_result.found_update_count > 0
+
+      - name: Get reboot finished time
+        shell: "date +%Y-%m-%d_%H:%M:%S"
+        register: reboot_end
+        delegate_to: localhost
+
+      - name: Get free diskspace C:\
+        ansible.windows.win_powershell:
+          script: |
+            "{0:N2}" -f (Get-PSDrive C | Select-Object Free | ForEach-Object { $_.Free / 1GB })
+        register: disk_space
+        ignore_errors: yes
+
+      - name: Set disk space check result
+        set_fact:
+            disk_space_gb: "{{ disk_space.output[0] | replace(',', '.') | float }}"
+            windows_diskspace_check: >-
+              {% if (disk_space.output[0] | replace(',', '.') | float) < 16 %}
+              ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = ERROR
+              {% else %}
+              ToDo: Festplattenspeicher {{ disk_space.output[0] | replace(',', '.') | float }} GB = OK
+              {% endif %}
+
+      - include_tasks: tasks/task-start-windows-services.yml
+        ignore_errors: yes
+
+      - name: Clear resume state on success
+        file:
+          path: "/tmp/patch_resume_{{ inventory_hostname }}.txt"
+          state: absent
+        delegate_to: localhost
+
+    rescue:
+      - name: Capture error info
+        set_fact:
+          patch_error: "FEHLER in Task '{{ ansible_failed_task.name }}': {{ ansible_failed_result.msg | default('unbekannter Fehler') }}"
+
+    always:
+      - include_tasks: tasks/task-write-patchlog-windows.yml
+        ignore_errors: yes

@@ -9,20 +9,15 @@
   tasks:
     - include_tasks: tasks/linux/write-log.yml
     - include_tasks: tasks/linux/dist-upgrade.yml
-    - name: Dist-upgrade
-      ansible.builtin.apt:
-        upgrade: dist
-        update_cache: true
 
     - name: Check reboot
       ansible.builtin.stat:
         path: /var/run/reboot-required
       register: reboot_required_file
 
-    - name: Reboot msg
-      ansible.builtin.debug:
-        msg: Reboot {{ inventory_hostname }} after the playbook finished.
-      when: reboot_required_file.stat.exists == true
+    - name: Reboot
+      ansible.builtin.reboot:
+      when: reboot_required_file.stat.exists
 
     - name: Autoremove
       ansible.builtin.apt:
@@ -49,7 +44,7 @@
 
   - name: Reboot
     ansible.builtin.reboot:
-    when: reboot_required_file.stat.exists == true
+    when: reboot_required_file.stat.exists
 
   - name: Autoremove
     ansible.builtin.apt:

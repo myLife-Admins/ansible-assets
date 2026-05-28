@@ -21,7 +21,7 @@
     hostname_for_file: "{{ 'ansible' if inventory_hostname == 'localhost' else inventory_hostname }}"
   delegate_to: localhost
 
-- name: Write Windows patch log
+- name: Write Linux patch log
   ansible.builtin.shell: |
     cat <<EOF >> /mnt/protokolle/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/Serverpatch/Fertig/Linux/Updates-{{ hostname_for_file }}-Generated.txt
     ########################################## {{ current_time }} ##########################################
